@@ -14,7 +14,8 @@ const list: ListWork[] = [
     { id: 1, title: 'job-1', img: '/slides/slide1.webp', link: 'https://dmnitprof.github.io/Slider/' },
     { id: 2, title: 'job-2', img: '/slides/slide2.webp', link: 'https://remember-me-game.web.app/' },
     { id: 3, title: 'job-3', img: '/slides/slide3.png', link: 'https://aim-game-js.web.app/' },
-    { id: 4, title: 'job-4', img: '/slides/slide4.webp', link: 'https://dmnitprof.github.io/Slider2JS/' }
+    { id: 4, title: 'job-4', img: '/slides/slide4.webp', link: 'https://dmnitprof.github.io/Slider2JS/' },
+    { id: 5, title: 'job-5 test', img: '/slides/slide1.webp', link: 'https://dmnitprof.github.io/Slider/' },
 ]
 
 export const WorkList = () => {
