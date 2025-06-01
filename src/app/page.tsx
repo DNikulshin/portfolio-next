@@ -7,10 +7,10 @@ import { MdAlternateEmail } from "react-icons/md";
 export default function Home() {
   return (
 
-    <div className="flex flex-col h-screen container mx-auto px-2 py-2 gap-2">
+    <div className="flex flex-col h-screen container mx-auto px-2 py-2 gap-2 overflow-x-hidden">
       <Header />
       <main className="shadow-md px-2 py-2 flex flex-col flex-grow">
-        <div className="px-2 py-2">
+        <div className="px-2 py-4">
           <h3 className="text-center underline">Skills</h3>
           <ul>
             <li>
@@ -22,7 +22,6 @@ export default function Home() {
             <li>
               Low -  VueJS, NuxtJS
             </li>
-
           </ul>
           <hr />
         </div>

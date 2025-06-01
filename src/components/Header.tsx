@@ -6,8 +6,12 @@ import Link from 'next/link'
 import { FaGithub } from "react-icons/fa";
 import { MdAlternateEmail } from "react-icons/md";
 import { FaMobileAlt } from "react-icons/fa";
+import { GitHubStats } from './GitHubStats'
 
 export const Header = () => {
+    const username = process.env.GITHUB_USERNAME || '';
+    const token = process.env.GITHUB_TOKEN || '';
+
     return (
         <div className='w-full flex-col  items-center gap-4'>
             <div className='w-full flex items-center justify-center gap-4 shadow-md px-2 py-2'>
@@ -47,10 +51,19 @@ export const Header = () => {
                     </div>
                 </div>
 
+                <div className='flex justify-center items-center'>
+                    {token && username &&
+                        <div className='hidden sm:block'>
+                            <GitHubStats
+                                token={token}
+                                username={username}
+                            />
+                        </div>
+                    }
 
-
-                <div className='max-w-[150px] select-none pointer-events-none'>
-                    <Image src={Notebook} alt='notebook' priority />
+                    <div className='max-w-[150px] select-none pointer-events-none'>
+                        <Image src={Notebook} alt='notebook' priority />
+                    </div>
                 </div>
             </div>
         </div>
