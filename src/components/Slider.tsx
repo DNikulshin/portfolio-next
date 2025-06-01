@@ -27,7 +27,7 @@ export const Slider = ({ list }: Props) => {
     )
 
     return (
-        <div className='flex flex-col w-full'>
+        <div className='flex flex-col w-full overflow-hidden'>
             <Carousel
                 plugins={[plugin.current]}
                 className="px-4 w-full mx-auto md:max-w-2/3"

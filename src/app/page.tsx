@@ -10,7 +10,7 @@ export default function Home() {
     <div className="flex flex-col h-screen container mx-auto px-2 py-2 gap-2">
       <Header />
       <main className="shadow-md px-2 py-2 flex flex-col flex-grow">
-        <div className="px-2 py-4">
+        <div className="px-2 py-4 w-full">
           <h3 className="text-center underline">Skills</h3>
           <ul>
             <li>
