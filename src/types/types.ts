@@ -1,6 +1,15 @@
-export interface ListWork {
-    id: number
-    title: string
-    img: string
-    link: string
+export interface IListWork {
+    works: {
+        title: string
+        imagePatch: string
+        linkPatch: string
+    }
+    error?: string | null
+
+}
+
+export interface IUserData {
+    email: string
+    error: string | null
+
 }

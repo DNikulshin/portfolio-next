@@ -5,8 +5,8 @@ import { FaGithub, FaMobileAlt } from "react-icons/fa";
 import { MdAlternateEmail } from "react-icons/md";
 
 export default function Home() {
-  return (
 
+  return (
     <div className="flex flex-col h-screen container mx-auto px-2 py-2 gap-2">
       <Header />
       <main className="shadow-md px-2 py-2 flex flex-col flex-grow">
@@ -27,7 +27,6 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-2 py-2">
           <h3 className="text-center underline">Works</h3>
-
           <WorkList />
         </div>
       </main>

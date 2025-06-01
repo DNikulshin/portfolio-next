@@ -12,13 +12,13 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/shared/ui/kit/carousel"
-import { ListWork } from '@/types/types'
 import Link from 'next/link'
-
+import { Work } from '@prisma/client'
 
 interface Props {
-    list: ListWork[]
+    list: Work[]
 }
+
 
 export const Slider = ({ list }: Props) => {
 
@@ -41,11 +41,11 @@ export const Slider = ({ list }: Props) => {
                                 <Card>
                                     <CardTitle>{item.title}</CardTitle>
                                     <CardContent className="flex items-center justify-center select-none pointer-events-none">
-                                        <Image src={item.img} alt={item.title} width={600} height={400} priority />
+                                        <Image src={item.imagePath} alt={item.title} width={600} height={400} priority />
                                     </CardContent>
                                     <CardFooter className='flex flex-col justify-center items-center gap-4'>
                                         <Link
-                                            href={item.link} target='_blank'
+                                            href={item.linkPath} target='_blank'
                                             rel='noopener noreferrer'
                                             className='bg-green-500/85 px-2 py-1 rounded-md'
                                         >
