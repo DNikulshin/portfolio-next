@@ -1,140 +1,89 @@
-import React, { useEffect, useState } from 'react';
+// import { useState, useEffect } from 'react';
 
-interface Repo {
-  name: string;
-  description: string;
-  html_url: string;
-  stargazers_count: number;
-  forks_count: number;
-  language: string;
-}
+// interface Repository {
+//   id: number;
+//   name: string;
+//   html_url: string;
+//   description?: string;
+//   stargazers_count: number;
+//   forks_count: number;
+// }
 
-interface ContributionsData {
-  totalContributions: number;
-  pinnedRepos: Repo[];
-}
+// interface Commit {
+//   sha: string;
+//   commit: {
+//     message: string;
+//     author: {
+//       name: string;
+//       date: string;
+//     };
+//   };
+//   html_url: string;
+// }
 
-const OverviewContributions: React.FC = () => {
-  const [data, setData] = useState<ContributionsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const username = 'DNikulshin'
-  const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN
+// interface GithubData {
+//   repositories: Repository[];
+//   pinnedRepositories: Repository[];
+//   commits: Commit[];
+//   loading: boolean;
+//   error: string | null;
+// }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (!GITHUB_TOKEN) {
-          throw new Error('GitHub token не установлен');
-        }
+// const GITHUB_API_URL = 'https://api.github.com';
 
-        const currentYear = new Date().getFullYear();
-        const contributionsQuery = `
-          query {
-            user(login: "${username}") {
-              contributionsCollection(from: "${currentYear}-01-01T00:00:00Z", to: "${currentYear}-12-31T23:59:59Z") {
-                contributionCalendar {
-                  totalContributions
-                }
-              }
-            }
-          }
-        `;
+// export const useGithub = (
+//   username: string,
+//   pinnedRepoNames: string[] = [] 
+// ): GithubData => {
+//   const [repositories, setRepositories] = useState<Repository[]>([]);
+//   const [pinnedRepositories, setPinnedRepositories] = useState<Repository[]>([]);
+//   const [commits, setCommits] = useState<Commit[]>([]);
+//   const [loading, setLoading] = useState<boolean>(true);
+//   const [error, setError] = useState<string | null>(null);
 
-        const contributionsResponse = await fetch('https://api.github.com/graphql', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${GITHUB_TOKEN}`,
-          },
-          body: JSON.stringify({ query: contributionsQuery }),
-        });
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setLoading(true);
+//       try {
+//         const reposResponse = await fetch(`${GITHUB_API_URL}/users/${username}/repos?per_page=100`);
+//         if (!reposResponse.ok) throw new Error('Failed to fetch repositories');
+//         const reposData: Repository[] = await reposResponse.json();
+//         setRepositories(reposData);
 
-        const contributionsResult = await contributionsResponse.json();
+//         const pinnedRepos = reposData.filter(repo => pinnedRepoNames.includes(repo.name));
+//         setPinnedRepositories(pinnedRepos);
 
-        const totalContributions =
-          contributionsResult.data?.user?.contributionsCollection?.contributionCalendar?.totalContributions || 0;
+//         const commitsPromises = reposData.map(async (repo) => {
+//           const commitsResponse = await fetch(
+//             `${GITHUB_API_URL}/repos/${username}/${repo.name}/commits?per_page=5`
+//           );
+//           if (!commitsResponse.ok) throw new Error(`Failed to fetch commits for ${repo.name}`);
+//           const commitsData: Commit[] = await commitsResponse.json();
+         
+//           return commitsData.map(commit => ({
+//             ...commit,
+//             html_url: commit.html_url,
+//           }));
+//         });
 
-        const pinnedReposResponse = await fetch(`https://api.github.com/users/${username}`, {
-          headers: {
-            Authorization: `Bearer ${GITHUB_TOKEN}`,
-          },
-        });
+//         const commitsArrays = await Promise.all(commitsPromises);
+//         const allCommits = commitsArrays.flat();
+//         setCommits(allCommits);
+//       } catch (err) {
+//         setError(err instanceof Error ? err.message : 'Unknown error');
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
 
-        const userData = await pinnedReposResponse.json();
+//     fetchData();
+//   }, [username, pinnedRepoNames]);
 
-        const pinnedReposQuery = `
-          {
-            user(login: "${username}") {
-              pinnedItems(first: 6, types: REPOSITORY) {
-                nodes {
-                  ... on Repository {
-                    name
-                    description
-                    html_url
-                    stargazers_count
-                    forks_count
-                    language
-                  }
-                }
-              }
-            }
-          }
-        `;
-
-        const pinnedReposResponseGraphQL = await fetch('https://api.github.com/graphql', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${GITHUB_TOKEN}`,
-          },
-          body: JSON.stringify({ query: pinnedReposQuery }),
-        });
-
-        const pinnedReposResult = await pinnedReposResponseGraphQL.json();
-
-        const pinnedRepos: Repo[] =
-          pinnedReposResult.data?.user?.pinnedItems?.nodes || [];
-
-        setData({ totalContributions, pinnedRepos });
-      } catch (err) {
-        console.error(err);
-        setError('Ошибка при получении данных');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [GITHUB_TOKEN, username])
-
-
-
-  return (
-    <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>Общий вклад за {new Date().getFullYear()}</h2>
-      <p>Количество вкладов: {data?.totalContributions}</p>
-
-      <h3>Закрепленные репозитории</h3>
-      <ul>
-        {data?.pinnedRepos.length ? (
-          data.pinnedRepos.map((repo) => (
-            <li key={repo.name} style={{ marginBottom: '10px' }}>
-              <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
-                <strong>{repo.name}</strong>
-              </a>
-              <p>{repo.description}</p>
-              <p>
-                ⭐ {repo.stargazers_count} | Forks: {repo.forks_count} | Language: {repo.language}
-              </p>
-            </li>
-          ))
-        ) : (
-          <p>Нет закрепленных репозиториев</p>
-        )}
-      </ul>
-    </div>
-  );
-};
-
-export default OverviewContributions;
+//   return {
+//     repositories,
+//     pinnedRepositories,
+//     commits,
+//     loading,
+//     error,
+//   };
+// };

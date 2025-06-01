@@ -37,6 +37,7 @@ export const GitHubStats: React.FC<GitHubStatsProps> = ({ username, token }) => 
 
                 if (totalRepos > 0) {
                     const latestRepo = reposData[0]; // можно выбрать любой
+                    console.log(latestRepo)
                     const commitsResponse = await fetch(`https://api.github.com/repos/${username}/${latestRepo.name}/commits?per_page=1`, {
                         headers: {
                             Authorization: `token ${token}`,
@@ -67,8 +68,11 @@ export const GitHubStats: React.FC<GitHubStatsProps> = ({ username, token }) => 
 
                 setRepoCount(totalRepos);
                 setCommitCount(totalCommits);
-            } catch (err: any) {
-                setError(err.message);
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                }
+
             } finally {
                 setLoading(false);
             }

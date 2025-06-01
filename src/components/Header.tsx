@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { FaGithub } from "react-icons/fa";
 import { MdAlternateEmail } from "react-icons/md";
 import { FaMobileAlt } from "react-icons/fa";
-import { GitHubStats } from './GitHubStats'
+import { GitHubStats } from '@/components/GitHubStats'
 
 export const Header = () => {
     const username = process.env.GITHUB_USERNAME || '';
@@ -54,10 +54,7 @@ export const Header = () => {
                 <div className='flex justify-center items-center'>
                     {token && username &&
                         <div className='hidden sm:block'>
-                            <GitHubStats
-                                token={token}
-                                username={username}
-                            />
+                            <GitHubStats username={username} token={token} />
                         </div>
                     }
 
