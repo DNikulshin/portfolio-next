@@ -1,10 +1,10 @@
-import sharp from 'sharp';
-import path from 'path';
-import fs from 'fs/promises';
+import sharp from "sharp";
+import path from "path";
+import fs from "fs/promises";
 
 interface ConvertOptions {
-  inputPath: string;   
-  outputDir: string;   
+  inputPath: string;
+  outputDir: string;
   outputFileName?: string;
 }
 
@@ -14,7 +14,9 @@ interface ConvertOptions {
  * @returns Path to the converted WebP image
  */
 
-export async function convertImageToWebp(options: ConvertOptions): Promise<string> {
+export async function convertImageToWebp(
+  options: ConvertOptions,
+): Promise<string> {
   const { inputPath, outputDir, outputFileName } = options;
 
   await fs.mkdir(outputDir, { recursive: true });
@@ -25,9 +27,7 @@ export async function convertImageToWebp(options: ConvertOptions): Promise<strin
     : path.join(outputDir, `${path.parse(inputFileName).name}.webp`);
 
   // Perform the conversion
-  await sharp(inputPath)
-    .webp()
-    .toFile(outputFile);
+  await sharp(inputPath).webp().toFile(outputFile);
 
   return outputFile; // Return the path to the WebP image
 }

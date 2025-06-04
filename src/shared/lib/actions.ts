@@ -1,9 +1,14 @@
 "use server";
-import { promises as fs } from 'fs'
+import { promises as fs } from "fs";
 import { z } from "zod";
-import { createSession, deleteSession, getSessionUser, SessionPayload } from "@/shared/lib/session";
+import {
+  createSession,
+  deleteSession,
+  getSessionUser,
+  SessionPayload,
+} from "@/shared/lib/session";
 import { redirect } from "next/navigation";
-import { prismaClient } from "@/shared/lib/prisma-client"
+import { prismaClient } from "@/shared/lib/prisma-client";
 import { compare, hash } from "bcrypt";
 
 const authSchema = z.object({
@@ -13,7 +18,6 @@ const authSchema = z.object({
     .min(6, { message: "Пароль должен быть не менее 6 символов" })
     .trim(),
 });
-
 
 export async function login(prevState: unknown, formData: FormData) {
   const result = authSchema.safeParse(Object.fromEntries(formData));
@@ -53,7 +57,6 @@ export async function login(prevState: unknown, formData: FormData) {
   redirect("/admin");
 }
 
-
 export async function register(prevState: unknown, formData: FormData) {
   const result = authSchema.safeParse(Object.fromEntries(formData));
 
@@ -65,11 +68,9 @@ export async function register(prevState: unknown, formData: FormData) {
 
   const { email, password } = result.data;
 
-
   const existingUser = await prismaClient.user.findUnique({
     where: { email },
   });
-
 
   if (existingUser) {
     return {
@@ -98,20 +99,21 @@ export async function logout() {
   redirect("/login");
 }
 
-
 export async function getUser(): Promise<SessionPayload | undefined> {
-  return await getSessionUser() as SessionPayload
+  return (await getSessionUser()) as SessionPayload;
 }
-
 
 //--------------------------------------------------
 export async function createFile(formData: FormData) {
-  const image = formData.get('image') as File
+  const image = formData.get("image") as File;
   if (!image || image.size === 0) {
-    return { error: "No image uploaded" }
+    return { error: "No image uploaded" };
   }
 
-  const data = await image.arrayBuffer()
-  fs.writeFile(`${process.cwd()}/public/slides/${image.name}`, Buffer.from(data))
-  return image.name
+  const data = await image.arrayBuffer();
+  fs.writeFile(
+    `${process.cwd()}/public/slides/${image.name}`,
+    Buffer.from(data),
+  );
+  return image.name;
 }
