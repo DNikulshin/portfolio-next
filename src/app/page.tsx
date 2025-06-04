@@ -1,3 +1,5 @@
+'use client'
+
 import { Header } from "@/components/Header"
 import { WorkList } from "@/components/works/WorkList";
 import Link from "next/link";

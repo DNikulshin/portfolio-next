@@ -1,16 +1,23 @@
-import { geWorks } from '@/hooks/useWork'
+import { getWorkList } from '@/hooks/useWork'
 import { Slider } from '../Slider'
+import { Loader } from '../Loader'
 
-export const WorkList = async () => {
-    const { works } = await geWorks('admin@admin.ru')
+export const WorkList = () => {
+    const { data, isFetching } = getWorkList()
 
-    if (!works?.length) {
+    if (isFetching) {
+        return <Loader />
+    }
+
+    if (!data?.works?.length) {
         return (
             <div className='w-full text-center'> <p className='text-red-500'>Not work. Add one.</p></div>
         )
     }
+    console.log(data?.works);
+
 
     return (
-        <Slider list={works || []} />
+        <Slider list={data?.works} />
     )
 }
