@@ -4,11 +4,11 @@ import path from "path";
 import { promises as fs } from "fs";
 
 export async function GET(
-  _: NextRequest,
-  { params }: { params: { id: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -34,11 +34,11 @@ export async function GET(
 }
 
 export async function DELETE(
-  _: NextRequest,
-  { params }: { params: { id: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -79,7 +79,7 @@ export async function DELETE(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
