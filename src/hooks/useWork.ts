@@ -5,7 +5,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 const getWoks = async (): Promise<IResponseDataWork> => {
   try {
     const data = await fetch(`/api/works`);
-    return data.json() ?? {};
+    return data.json();
   } catch (error) {
     console.error("Error fetching works:", error);
     throw error;

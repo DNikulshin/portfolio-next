@@ -23,7 +23,7 @@ export const Slider = ({ list }: Props) => {
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
 
   return (
-    <div className="flex flex-col w-full overflow-hidden">
+    <div className="flex flex-col w-full overflow-hidden" tabIndex={0}>
       <Carousel
         plugins={[plugin.current]}
         className="px-4 w-full mx-auto md:max-w-2/3"
@@ -42,8 +42,9 @@ export const Slider = ({ list }: Props) => {
                       alt={item.title}
                       width={600}
                       height={400}
+                   sizes="100"
                       priority
-                      className="h-auto"
+                      className="w-fit h-auto max-h-[400px]"
                     />
                   </CardContent>
                   <CardFooter className="flex flex-col justify-center items-center gap-4">
@@ -55,7 +56,7 @@ export const Slider = ({ list }: Props) => {
                     >
                       View project
                     </Link>
-                    <div className="text-muted-foreground py-2 text-center text-sm">
+                    <div className="text-muted-foreground py-2 text-center text-sm ">
                       Slide {index + 1} of {list.length}
                     </div>
                   </CardFooter>

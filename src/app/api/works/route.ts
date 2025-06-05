@@ -117,7 +117,7 @@ export async function PUT(req: NextRequest) {
 
       await fs.mkdir(uploadsDir, { recursive: true });
       await fs.writeFile(filePath, Buffer.from(imageBuffer));
-      imagePath = `/slides/${filename}`;
+      imagePath = path.posix.join('/slides', filename);
     }
 
     type UpdateData = {
