@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@/hooks/useUser";
-import { useGetWorkList } from "@/hooks/useWork";
+import { useDeleteWork, useGetWorkList } from "@/hooks/useWork";
 import React, { useState } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { logout } from "@/shared/lib/actions";
@@ -9,20 +9,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { Loader } from "@/components/Loader";
 import { CreateForm } from "@/components/admin/CreateForm";
+import { MdDelete } from "react-icons/md";
 
 export default function Admin() {
+  const [isLogout, setIsLogout] = useState(false);
+
   const {
     data: userFromSession,
     isFetching: isFetchingUser,
     isError: isErrorUser,
   } = useUser();
+
   const {
     data,
     isError: isErrorList,
     error,
     isFetching: isFetchingList,
   } = useGetWorkList();
-  const [isLogout, setIsLogout] = useState(false);
+
+  const deleteWork = useDeleteWork();
 
   const logoutHandler = async () => {
     setIsLogout(true);
@@ -75,14 +80,23 @@ export default function Admin() {
                   priority
                   className="h-auto"
                 />
-                <Link
-                  href={work.linkPath}
-                  className="text-blue-500 underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View project
-                </Link>
+                <div className="flex items-center justify-center gap-4">
+                  <Link
+                    href={work.linkPath}
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View project
+                  </Link>
+
+                  <button
+                    onClick={() => deleteWork.mutate(work.id)}
+                    className="text-red-500 text-2xl cursor-pointer"
+                  >
+                    <MdDelete />
+                  </button>
+                </div>
               </div>
             ))}
         </div>

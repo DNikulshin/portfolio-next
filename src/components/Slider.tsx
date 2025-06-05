@@ -42,7 +42,7 @@ export const Slider = ({ list }: Props) => {
                       alt={item.title}
                       width={600}
                       height={400}
-                   sizes="100"
+                      sizes="100"
                       priority
                       className="w-fit h-auto max-h-[400px]"
                     />
