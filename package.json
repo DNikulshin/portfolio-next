@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm run prisma:reset && next build",
+    "build": "npm run prisma:migrate && npm run prisma:reset && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "npx prettier -w .",
-    "prisma:reset": "npx prisma migrate reset --force"
+    "prisma:reset": "npx prisma migrate reset --force",
+     "prisma:migrate": "npx prisma migrate deploy"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
