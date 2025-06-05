@@ -1,6 +1,7 @@
 "use client";
 import { useCreateNewWork } from "@/hooks/useWork";
 import { IFormDataCreateWork } from "@/types/types";
+import { error } from "console";
 import React, { ChangeEventHandler, FormEventHandler, useState } from "react";
 
 export const CreateForm = ({ userId }: { userId?: string }) => {
@@ -56,6 +57,12 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
     );
   };
 
+  if(createWork.isError) {
+    return (
+      <div>{(createWork.error as Error).message ?? 'unknown error'}</div>
+    )
+  }
+
   return (
     <form
       className="flex flex-col gap-4 mx-auto container"
@@ -84,7 +91,8 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
       />
       <button
         type="submit"
-        className="px-2 py-2 bg-red-500/85 self-end rounded-md shadow-md"
+        className="px-2 py-2 bg-red-500/85 self-end rounded-md shadow-md disabled:bg-gray-500"
+        disabled={createWork.isPending}
       >
         Create Work
       </button>

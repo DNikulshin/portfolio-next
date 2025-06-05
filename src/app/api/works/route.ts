@@ -47,8 +47,8 @@ export async function POST(req: NextRequest) {
     await fs.mkdir(uploadsDir, { recursive: true });
     await fs.writeFile(filePath, Buffer.from(imageBuffer));
 
-    const imagePath = `/slides/${filename}`;
-
+    const imagePath = path.posix.join('/slides', filename);
+   
     const newWork = await prismaClient.work.create({
       data: {
         title,
