@@ -1,6 +1,18 @@
-export interface ListWork {
-    id: number
-    title: string
-    img: string
-    link: string
+import { Work } from "@prisma/client";
+
+export interface IResponseDataWork {
+  works: Work[];
+  totalCount: number;
+}
+
+export interface IFormDataCreateWork {
+  title: string;
+  image: File | Blob;
+  linkPath: string;
+  userId?: string | undefined;
+}
+
+export interface IUserData {
+  email: string;
+  error: string | null;
 }
