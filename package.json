@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format": "npx prettier -w .",
     "prisma:reset": "npx prisma migrate reset --force",
-     "prisma:migrate": "npx prisma migrate deploy"
+    "prisma:migrate": "npx prisma migrate deploy"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
