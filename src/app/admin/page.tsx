@@ -1,70 +1,106 @@
-'use client'
+"use client";
 
-import { useUser } from '@/hooks/useUser'
-import { getWorkList } from '@/hooks/useWork'
-import React, { useState } from 'react'
-import { AdminHeader } from '@/components/admin/AdminHeader'
-import { logout } from '@/shared/lib/actions'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Loader } from '@/components/Loader'
-import { CreateForm } from '@/components/admin/CreateForm'
+import { useUser } from "@/hooks/useUser";
+import { useDeleteWork, useGetWorkList } from "@/hooks/useWork";
+import React, { useState } from "react";
+import { AdminHeader } from "@/components/admin/AdminHeader";
+import { logout } from "@/shared/lib/actions";
+import Link from "next/link";
+import Image from "next/image";
+import { Loader } from "@/components/Loader";
+import { CreateForm } from "@/components/admin/CreateForm";
+import { MdDelete } from "react-icons/md";
 
 export default function Admin() {
-    const { data: userFromSession, isFetching: isFetchingUser, isError: isErrorUser } = useUser()
-    const { data, isError: isErrorList, error, isFetching: isFetchingList } = getWorkList()
-    const [isLogout, setIsLogout] = useState(false)
+  const [isLogout, setIsLogout] = useState(false);
 
+  const {
+    data: userFromSession,
+    isFetching: isFetchingUser,
+    isError: isErrorUser,
+  } = useUser();
 
-    const logoutHandler = async () => {
-        setIsLogout(true)
-        await logout()
-        setIsLogout(false)
-    }
+  const {
+    data,
+    isError: isErrorList,
+    error,
+    isFetching: isFetchingList,
+  } = useGetWorkList();
 
+  const deleteWork = useDeleteWork();
 
-    if (isFetchingUser && isFetchingList) {
-        return <Loader />
-    }
+  const logoutHandler = async () => {
+    setIsLogout(true);
+    await logout();
+    setIsLogout(false);
+  };
 
-    if (isErrorList && isErrorUser) {
-        return <div className="h-screen flex justify-center items-center text-red-500 font-bold text-center">{(error as Error).message}</div>
-    }
+  if (isFetchingUser && isFetchingList) {
+    return <Loader />;
+  }
 
-    if (isLogout) {
-        return <Loader />
-    }
-
-
-    console.log(data);
-
+  if (isErrorList && isErrorUser) {
     return (
-        <div>
-            <AdminHeader
-                isLogout={isLogout}
-                logoutHandler={logoutHandler}
-                userFromSessionEmail={userFromSession?.userEmail}
-            />
-            <CreateForm userId={userFromSession?.userId ?? ''} />
-            <div className='px-2 py-2'>
-                <h3 className='text-center'>Admin Page - {userFromSession?.userEmail}</h3>
+      <div className="h-screen flex justify-center items-center text-red-500 font-bold text-center">
+        {(error as Error).message}
+      </div>
+    );
+  }
 
-                <div className='flex flex-col gap-4 px-4 py-4'>
-                    {data?.works && data?.works.map(work => (
-                        <div key={work.id} className='flex gap-2 justify-between items-center shadow-sm shadow-amber-100 px-4 py-4'>
-                            <div>{work.title}</div>
-                            <Image src={work.imagePath} alt={work.title} width={200} height={200} priority className='h-auto' />
-                            <Link href={work.linkPath} className='text-blue-500 underline'
-                                target="_blank" rel="noopener noreferrer"
-                            >
-                                View project
-                            </Link>
-                        </div>
-                    ))}
+  if (isLogout) {
+    return <Loader />;
+  }
+
+  return (
+    <div>
+      <AdminHeader
+        isLogout={isLogout}
+        logoutHandler={logoutHandler}
+        userFromSessionEmail={userFromSession?.userEmail}
+      />
+      <CreateForm userId={userFromSession?.userId ?? ""} />
+      <div className="px-2 py-2">
+        <h3 className="text-center">
+          Admin Page - {userFromSession?.userEmail}
+        </h3>
+
+        <div className="flex flex-col gap-4 px-4 py-4">
+          {data?.works &&
+            data?.works.map((work) => (
+              <div
+                key={work.id}
+                className="flex gap-2 justify-between items-center shadow-sm shadow-amber-100 px-4 py-4"
+              >
+                <div>{work.title}</div>
+                <Image
+                  src={work.imagePath}
+                  alt={work.title}
+                  width={200}
+                  height={200}
+                  priority
+                  className="h-auto"
+                />
+                <div className="flex items-center justify-center gap-4">
+                  <Link
+                    href={work.linkPath}
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View project
+                  </Link>
+
+                  <button
+                    onClick={() => deleteWork.mutate(work.id)}
+                    className="text-red-500 text-2xl cursor-pointer"
+                  >
+                    <MdDelete />
+                  </button>
                 </div>
-            </div>
-
+              </div>
+            ))}
         </div>
-
-    )
+      </div>
+    </div>
+  );
 }

@@ -2,7 +2,6 @@
 // import path from 'path'
 // import { v4 as uuidv4 } from 'uuid'
 
-
 // // Предполагается, что файл передается как объект multer
 // export async function createFile(imageFile: File | Blob): Promise<string> {
 //     if (!imageFile || !imageFile.buffer) {

@@ -27,7 +27,6 @@ export async function deleteSession() {
   (await cookies()).delete("session");
 }
 
-
 export async function encrypt(payload: SessionPayload) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
@@ -38,8 +37,8 @@ export async function encrypt(payload: SessionPayload) {
 
 export async function decrypt(session: string | undefined = "") {
   if (!session) {
-    console.log('Session token is empty or undefined');
-    return null
+    console.log("Session token is empty or undefined");
+    return null;
   }
 
   console.log("Attempting to verify session:", session);
@@ -50,10 +49,9 @@ export async function decrypt(session: string | undefined = "") {
     });
 
     return payload;
-
   } catch (error) {
     console.log("Failed to verify session", error);
-    return null
+    return null;
   }
 }
 
@@ -62,22 +60,20 @@ export async function getSessionUser() {
     const session = (await cookies()).get("session");
 
     if (!session) {
-      console.log('Session token is empty or undefined');
-      return null
+      console.log("Session token is empty or undefined");
+      return null;
     }
-  
+
     console.log("Attempting to verify session:", session);
 
     if (session && session?.value) {
       const payload = await decrypt(session.value);
-      return payload
+      return payload;
     }
 
     return null;
-
   } catch (error) {
     console.log("Failed to get session", error);
-    return null
+    return null;
   }
-
 }

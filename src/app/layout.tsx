@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { Viewport } from 'next'
+import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
@@ -14,31 +14,33 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: 'black',
-
-}
-
+  themeColor: "black",
+};
 
 export const metadata: Metadata = {
   title: "Portfolio | Nikulshin D.",
   description: "Developer page - Nikulshin Dmitry",
   generator: "Next.js",
   manifest: "/manifest.json",
-  keywords: ["Portfolio", "Developer page", "Nikulshin Dmitriy", "Портфолио веб разработчика", "Никульшин Дмитрий"],
+  keywords: [
+    "Portfolio",
+    "Developer page",
+    "Nikulshin Dmitriy",
+    "Портфолио веб разработчика",
+    "Никульшин Дмитрий",
+  ],
   authors: [
     {
       name: "Nikulshin D.",
       url: "https://github.com/DNikulshin",
     },
-  ]
+  ],
 };
-
 
 export default function RootLayout({
   children,
@@ -51,12 +53,9 @@ export default function RootLayout({
         <link rel="icon" href="/icons/icon-192x192.png" />
       </head>
       <body
-
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
-        <QueryProvider>
-          {children}
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
