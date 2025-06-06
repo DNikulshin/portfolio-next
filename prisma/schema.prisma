@@ -9,27 +9,10 @@ generator client {
   //output   = "../src/generated/prisma"
 }
 
-<<<<<<< HEAD
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-datasource db {  
-  provider = "sqlite"  
-  url      = env("DATABASE_URL")  
-}  
-=======
 datasource db {
   provider = "sqlite"
   url      = "file:dev.db"
 }
->>>>>>> c73d7cd2305c9f29ed8bb48585adfff9392ee28f
-
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
 
 model User {
   id           String   @id @default(uuid())
