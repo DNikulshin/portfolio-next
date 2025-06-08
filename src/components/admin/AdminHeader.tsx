@@ -13,7 +13,7 @@ export const AdminHeader = ({
   userFromSessionEmail,
 }: Props) => {
   return (
-    <header className="flex justify-between items-center px-3 py-4 shadow-sm shadow-amber-100 mb-3 flex-wrap gap-2 sticky top-0 z-30 bg-slate-800/90">
+    <header className="flex justify-between items-center px-3 py-4 shadow-sm shadow-amber-100 mb-4 flex-wrap gap-2 sticky top-0 z-30 bg-slate-800/90">
       <div className=" container mx-auto">
         <div className="flex gap-2  justify-center items-center w-full mb-2">
           <span className="text-xl">

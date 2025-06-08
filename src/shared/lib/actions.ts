@@ -1,5 +1,4 @@
 "use server";
-import { promises as fs } from "fs";
 import { z } from "zod";
 import {
   createSession,
@@ -29,6 +28,8 @@ export async function login(prevState: unknown, formData: FormData) {
   }
 
   const { email, password } = result.data;
+
+  console.log({ email, password });
 
   const user = await prismaClient.user.findUnique({
     where: { email },
@@ -101,19 +102,4 @@ export async function logout() {
 
 export async function getUser(): Promise<SessionPayload | undefined> {
   return (await getSessionUser()) as SessionPayload;
-}
-
-//--------------------------------------------------
-export async function createFile(formData: FormData) {
-  const image = formData.get("image") as File;
-  if (!image || image.size === 0) {
-    return { error: "No image uploaded" };
-  }
-
-  const data = await image.arrayBuffer();
-  fs.writeFile(
-    `${process.cwd()}/public/slides/${image.name}`,
-    Buffer.from(data),
-  );
-  return image.name;
 }

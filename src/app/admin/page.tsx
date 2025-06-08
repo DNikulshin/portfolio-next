@@ -40,19 +40,20 @@ export default function Admin() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col h-screen gap-2">
       <AdminHeader
         isLogout={isLogout}
         logoutHandler={logoutHandler}
         userFromSessionEmail={userFromSession?.userEmail}
       />
+      <div className="px-2 pb-4">
       <CreateForm userId={userFromSession?.userId ?? ""} />
-      <div className="px-2 py-2">
         <h3 className="text-center">
           Admin Page - {userFromSession?.userEmail}
         </h3>
 
         <WorkList type="list" />
+    
       </div>
     </div>
   );
