@@ -4,10 +4,10 @@ import { IFormDataCreateWork } from "@/types/types";
 
 export async function GET() {
   try {
-    // const totalCount = await prismaClient.work.count();
+    const totalCount = await prismaClient.work.count();
     const works = await prismaClient.work.findMany({});
 
-    return NextResponse.json({ works, totalCount: works?.length}, { status: 200 });
+    return NextResponse.json({ works, totalCount }, { status: 200 });
   } catch (error) {
     console.error("Ошибка при обработке GET запроса:", error);
     return NextResponse.json(
