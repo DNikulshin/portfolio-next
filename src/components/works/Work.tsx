@@ -9,9 +9,7 @@ import { FaEdit } from "react-icons/fa";
 export const WorkItem = (work: Work) => {
   const deleteWork = useDeleteWork();
   return (
-    <div
-      className="flex gap-2 justify-between items-center shadow-sm shadow-amber-100 px-4 py-4"
-    >
+    <div className="flex gap-2 justify-between items-center shadow-sm shadow-amber-100 px-4 py-4">
       <div>{work.title}</div>
       <div className="max-w-[200px]">
         <Image

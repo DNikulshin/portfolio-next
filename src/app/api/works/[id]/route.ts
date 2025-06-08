@@ -1,7 +1,5 @@
 import { prismaClient } from "@/shared/lib/prisma-client";
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import { promises as fs } from "fs";
 import { IFormDataUpdateWork } from "@/types/types";
 
 export async function GET(

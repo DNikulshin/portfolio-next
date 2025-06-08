@@ -13,7 +13,7 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
   const [formValue, setFormValue] = useState<IFormDataCreateWork>({
     title: "",
     linkPath: "",
-    image: ""
+    image: "",
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +27,7 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
         const file = files[0];
         const reader = new FileReader();
         reader.onloadend = () => {
-          const base64String = reader.result as string; 
+          const base64String = reader.result as string;
           // // убрать префикс:
           // const base64Data = base64String.split(",")[1];
 
