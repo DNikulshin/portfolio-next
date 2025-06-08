@@ -13,7 +13,7 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
   const [formValue, setFormValue] = useState<IFormDataCreateWork>({
     title: "",
     linkPath: "",
-    image: null as unknown as File | Blob,
+    image: "",
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,10 +24,19 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
     if (e.target.type === "file") {
       const files = e.target.files;
       if (files && files.length > 0) {
-        setFormValue((prev) => ({
-          ...prev,
-          [e.target.name]: files[0],
-        }));
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result as string;
+          // // убрать префикс:
+          // const base64Data = base64String.split(",")[1];
+
+          setFormValue((prev) => ({
+            ...prev,
+            image: base64String,
+          }));
+        };
+        reader.readAsDataURL(file);
       }
     } else {
       setFormValue((prev) => ({
@@ -39,32 +48,32 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
+
     if (!formValue.title || !formValue.linkPath || !formValue.image || !userId)
       return;
-    formData.append("title", formValue.title.trim());
-    formData.append("linkPath", formValue.linkPath.trim());
-    formData.append("image", formValue.image);
 
-    createWork.mutate(
-      { ...formValue, userId },
-      {
-        onSuccess: () => {
-          setFormValue({
-            title: "",
-            linkPath: "",
-            image: null as unknown as File | Blob,
-            userId: "",
-          });
-          if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-          }
-        },
-        onError: (error) => {
-          console.log(error);
-        },
+    const payload = {
+      title: formValue.title.trim(),
+      linkPath: formValue.linkPath.trim(),
+      image: formValue.image,
+      userId,
+    };
+
+    createWork.mutate(payload, {
+      onSuccess: () => {
+        setFormValue({
+          title: "",
+          linkPath: "",
+          image: "",
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       },
-    );
+      onError: (error) => {
+        console.log(error);
+      },
+    });
   };
 
   if (createWork.isError) {

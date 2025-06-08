@@ -1,8 +1,13 @@
 import { useGetWorkList } from "@/hooks/useWork";
 import { Slider } from "../Slider";
 import { Loader } from "../Loader";
+import { WorkItem } from "./Work";
 
-export const WorkList = () => {
+interface Props {
+  type: "slider" | "list";
+}
+
+export const WorkList = ({ type }: Props) => {
   const { data, isFetching } = useGetWorkList();
 
   if (isFetching) {
@@ -17,5 +22,15 @@ export const WorkList = () => {
     );
   }
 
-  return <Slider list={data?.works} />;
+  return (
+    <>
+      {type === "slider" && <Slider list={data?.works} />}
+      {type === "list" && (
+        <div className="flex flex-col gap-4 px-4 py-4">
+          {data?.works &&
+            data?.works.map((work) => <WorkItem {...work} key={work.id} />)}
+        </div>
+      )}
+    </>
+  );
 };

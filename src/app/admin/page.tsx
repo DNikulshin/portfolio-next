@@ -1,15 +1,11 @@
 "use client";
-
 import { useUser } from "@/hooks/useUser";
-import { useDeleteWork, useGetWorkList } from "@/hooks/useWork";
 import React, { useState } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { logout } from "@/shared/lib/actions";
-import Link from "next/link";
-import Image from "next/image";
 import { Loader } from "@/components/Loader";
 import { CreateForm } from "@/components/admin/CreateForm";
-import { MdDelete } from "react-icons/md";
+import { WorkList } from "@/components/works/WorkList";
 
 export default function Admin() {
   const [isLogout, setIsLogout] = useState(false);
@@ -18,16 +14,8 @@ export default function Admin() {
     data: userFromSession,
     isFetching: isFetchingUser,
     isError: isErrorUser,
-  } = useUser();
-
-  const {
-    data,
-    isError: isErrorList,
     error,
-    isFetching: isFetchingList,
-  } = useGetWorkList();
-
-  const deleteWork = useDeleteWork();
+  } = useUser();
 
   const logoutHandler = async () => {
     setIsLogout(true);
@@ -35,11 +23,11 @@ export default function Admin() {
     setIsLogout(false);
   };
 
-  if (isFetchingUser && isFetchingList) {
+  if (isFetchingUser) {
     return <Loader />;
   }
 
-  if (isErrorList && isErrorUser) {
+  if (isErrorUser) {
     return (
       <div className="h-screen flex justify-center items-center text-red-500 font-bold text-center">
         {(error as Error).message}
@@ -64,42 +52,7 @@ export default function Admin() {
           Admin Page - {userFromSession?.userEmail}
         </h3>
 
-        <div className="flex flex-col gap-4 px-4 py-4">
-          {data?.works &&
-            data?.works.map((work) => (
-              <div
-                key={work.id}
-                className="flex gap-2 justify-between items-center shadow-sm shadow-amber-100 px-4 py-4"
-              >
-                <div>{work.title}</div>
-                <Image
-                  src={work.imagePath}
-                  alt={work.title}
-                  width={200}
-                  height={200}
-                  priority
-                  className="h-auto"
-                />
-                <div className="flex items-center justify-center gap-4">
-                  <Link
-                    href={work.linkPath}
-                    className="text-blue-500 underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View project
-                  </Link>
-
-                  <button
-                    onClick={() => deleteWork.mutate(work.id)}
-                    className="text-red-500 text-2xl cursor-pointer"
-                  >
-                    <MdDelete />
-                  </button>
-                </div>
-              </div>
-            ))}
-        </div>
+        <WorkList type="list" />
       </div>
     </div>
   );
