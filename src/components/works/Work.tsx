@@ -17,7 +17,7 @@ export const WorkItem = (work: Work) => {
           alt={work.title}
           width={200}
           height={200}
-          className="w-full h-auto"
+          className="h-auto"
           priority
         />
       </div>
