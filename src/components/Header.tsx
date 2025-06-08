@@ -22,9 +22,9 @@ export const Header = () => {
               <Image
                 src={Avatar}
                 alt="avatar"
-                priority
                 className="shadow-md rounded-md"
                 placeholder="blur"
+                priority
               />
             </div>
 

@@ -21,7 +21,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-2 py-2">
           <h3 className="text-center underline">Works</h3>
-          <WorkList />
+          <WorkList type="slider" />
         </div>
       </main>
       <footer className="flex justify-center items-center mt-auto shadow-md px-2 py-2 gap-8">

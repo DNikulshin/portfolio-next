@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prismaClient } from "@/shared/lib/prisma-client";
-import path from "path";
-import { promises as fs } from "fs";
-import { randomUUID } from "crypto";
+import { IFormDataCreateWork } from "@/types/types";
 
 export async function GET() {
   try {
@@ -21,45 +19,22 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const data = await req.formData();
+    const { image, linkPath, title, userId }: IFormDataCreateWork =
+      await req.json();
 
-    if (!data) {
-      return NextResponse.json({ error: "Нет данных формы" }, { status: 400 });
-    }
-
-    const title = data.get("title") as string;
-    const linkPath = data.get("linkPath") as string;
-    const userId = data.get("userId") as string;
-    const imageFile = data.get("image") as File;
-
-    if (!imageFile || imageFile.size === 0) {
+    if (!image || !linkPath || !title || !userId) {
       return NextResponse.json(
-        { error: "Нет загруженного изображения" },
+        { error: "Поля формы обязательны" },
         { status: 400 },
       );
     }
 
-    const imageBuffer = await imageFile.arrayBuffer();
-
-    const uploadsDir = path.join(process.cwd(), "public", "slides");
-    const filename = `${randomUUID()}_${imageFile.name}`;
-    const filePath = path.join(uploadsDir, filename);
-
-    await fs.mkdir(uploadsDir, { recursive: true });
-    await fs.writeFile(filePath, Buffer.from(imageBuffer));
-
-    const imagePath = path.posix.join("/slides", filename);
-
-    const id = filename.split("_")[0];
-    console.log(userId);
-
     const newWork = await prismaClient.work.create({
       data: {
-        id,
         title,
         linkPath,
+        image,
         userId,
-        imagePath,
       },
     });
 

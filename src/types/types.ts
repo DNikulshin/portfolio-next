@@ -1,4 +1,4 @@
-import { Work } from "@prisma/client";
+import { Work } from "@/generated/prisma";
 
 export interface IResponseDataWork {
   works: Work[];
@@ -7,7 +7,15 @@ export interface IResponseDataWork {
 
 export interface IFormDataCreateWork {
   title: string;
-  image: File | Blob;
+  image: string;
+  linkPath: string;
+  userId?: string | undefined;
+}
+
+export interface IFormDataUpdateWork {
+  id: string;
+  title: string;
+  image: string;
   linkPath: string;
   userId?: string | undefined;
 }

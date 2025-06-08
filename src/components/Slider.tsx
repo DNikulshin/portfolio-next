@@ -13,7 +13,7 @@ import {
   CarouselPrevious,
 } from "@/shared/ui/kit/carousel";
 import Link from "next/link";
-import { Work } from "@prisma/client";
+import { Work } from "@/generated/prisma";
 
 interface Props {
   list: Work[];
@@ -38,13 +38,12 @@ export const Slider = ({ list }: Props) => {
                   <CardTitle>{item.title}</CardTitle>
                   <CardContent className="flex items-center justify-center select-none pointer-events-none">
                     <Image
-                      src={item.imagePath}
+                      src={item.image}
                       alt={item.title}
                       width={600}
                       height={400}
-                      sizes="100"
-                      priority
                       className="w-fit h-auto max-h-[400px]"
+                      priority
                     />
                   </CardContent>
                   <CardFooter className="flex flex-col justify-center items-center gap-4">

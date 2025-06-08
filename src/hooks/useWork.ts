@@ -1,5 +1,9 @@
-import { IFormDataCreateWork, IResponseDataWork } from "@/types/types";
-import { Work } from "@prisma/client";
+import {
+  IFormDataCreateWork,
+  IFormDataUpdateWork,
+  IResponseDataWork,
+} from "@/types/types";
+import { Work } from "@/generated/prisma";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 const getWoks = async (): Promise<IResponseDataWork> => {
@@ -12,18 +16,24 @@ const getWoks = async (): Promise<IResponseDataWork> => {
   }
 };
 
-const create = async (formData: IFormDataCreateWork): Promise<Work> => {
-  const formDataObj = new FormData();
-  Object.entries(formData).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      formDataObj.append(key, value);
-    }
-  });
-
+const create = async (newWork: IFormDataCreateWork): Promise<Work> => {
   try {
     const data = await fetch("/api/works", {
       method: "POST",
-      body: formDataObj,
+      body: JSON.stringify(newWork),
+    });
+
+    return await data.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+const update = async (updatedWork: IFormDataUpdateWork): Promise<Work> => {
+  try {
+    const data = await fetch(`/api/works/${updatedWork.id}`, {
+      method: "POST",
+      body: JSON.stringify(updatedWork),
     });
 
     return await data.json();
@@ -63,6 +73,16 @@ const useCreateNewWork = () => {
   });
 };
 
+const useUpdateWork = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (work: IFormDataUpdateWork) => update(work),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["works"] });
+    },
+  });
+};
+
 const useDeleteWork = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -73,4 +93,4 @@ const useDeleteWork = () => {
   });
 };
 
-export { useGetWorkList, useCreateNewWork, useDeleteWork };
+export { useGetWorkList, useCreateNewWork, useDeleteWork, useUpdateWork };
