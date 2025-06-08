@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm run npx prisma migrate reset --force && prisma:deploy && next build",
+    "build": "npm run prisma:reset && prisma:deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "npx prettier -w .",
