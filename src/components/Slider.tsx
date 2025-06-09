@@ -13,7 +13,7 @@ import {
   CarouselPrevious,
 } from "@/shared/ui/kit/carousel";
 import Link from "next/link";
-import { Work } from "@/generated/prisma/client";
+import { Work } from "@prisma/client";
 
 interface Props {
   list: Work[];
