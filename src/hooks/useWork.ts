@@ -16,11 +16,11 @@ const getWoks = async (): Promise<IResponseDataWork> => {
   }
 };
 
-const create = async (newWork: IFormDataCreateWork): Promise<Work> => {
+const create = async (formData: FormData): Promise<Work> => {
   try {
     const data = await fetch("/api/works", {
       method: "POST",
-      body: JSON.stringify(newWork),
+      body: formData,
     });
 
     return await data.json();
@@ -29,11 +29,12 @@ const create = async (newWork: IFormDataCreateWork): Promise<Work> => {
   }
 };
 
-const update = async (updatedWork: IFormDataUpdateWork): Promise<Work> => {
+const update = async (formData: FormData): Promise<Work> => {
+  const workId = formData.get("workId");
   try {
-    const data = await fetch(`/api/works/${updatedWork.id}`, {
+    const data = await fetch(`/api/works/${workId}`, {
       method: "POST",
-      body: JSON.stringify(updatedWork),
+      body: formData,
     });
 
     return await data.json();
@@ -66,7 +67,7 @@ const useGetWorkList = () => {
 const useCreateNewWork = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (work: IFormDataCreateWork) => create(work),
+    mutationFn: (work: FormData) => create(work),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["works"] });
     },
@@ -76,7 +77,7 @@ const useCreateNewWork = () => {
 const useUpdateWork = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (work: IFormDataUpdateWork) => update(work),
+    mutationFn: (work: FormData) => update(work),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["works"] });
     },

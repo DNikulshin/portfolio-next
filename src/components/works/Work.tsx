@@ -13,7 +13,7 @@ export const WorkItem = (work: Work) => {
       <div>{work.title}</div>
       <div className="max-w-[200px]">
         <Image
-          src={work.image}
+          src={work.imageUrl}
           alt={work.title}
           width={200}
           height={200}
@@ -24,7 +24,7 @@ export const WorkItem = (work: Work) => {
 
       <div className="flex items-center justify-center gap-4">
         <Link
-          href={work.linkPath}
+          href={work.linkUrl}
           className="text-blue-500 underline"
           target="_blank"
           rel="noopener noreferrer"

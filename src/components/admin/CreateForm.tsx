@@ -11,24 +11,24 @@ import React, {
 
 import { z } from "zod";
 
-// Определение схемы валидации с помощью zod
 const formSchema = z.object({
   title: z.string().nonempty({ message: "Title is required" }),
-  linkPath: z
+  linkUrl: z
     .string()
     .nonempty({ message: "Link is required" })
     .url({ message: "Invalid URL" }),
-  image: z.string().nonempty({ message: "Image is required" }),
+  image: z.any(),
+  // .refine((files) => files?.length === 1, "Image is required."),
 });
 
 export const CreateForm = ({ userId }: { userId?: string }) => {
   const [formValue, setFormValue] = useState<IFormDataCreateWork>({
     title: "",
-    linkPath: "",
-    image: "",
+    linkUrl: "",
+    image: null,
   });
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const createWork = useCreateNewWork();
 
@@ -37,15 +37,20 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
       const files = e.target.files;
       if (files && files.length > 0) {
         const file = files[0];
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result as string;
-          setFormValue((prev) => ({
-            ...prev,
-            image: base64String,
-          }));
-        };
-        reader.readAsDataURL(file);
+        setFormValue((prev) => ({
+          ...prev,
+          [e.target.name]: file,
+        }));
+
+        // const reader = new FileReader();
+        // reader.onloadend = () => {
+        //   const base64String = reader.result as string;
+        //   setFormValue((prev) => ({
+        //     ...prev,
+        //     image: base64String,
+        //   }));
+        // };
+        // reader.readAsDataURL(file);
       }
     } else {
       setFormValue((prev) => ({
@@ -58,25 +63,51 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    // Валидация данных с помощью zod
     try {
       const validatedData = formSchema.parse({
         title: formValue.title.trim(),
-        linkPath: formValue.linkPath.trim(),
+        linkUrl: formValue.linkUrl.trim(),
         image: formValue.image,
       });
 
       if (!userId) return;
 
-      const payload = {
-        ...validatedData,
-        userId,
-      };
+      console.log({
+        validatedData,
+      });
+
+      const formData = new FormData();
+      formData.append("title", validatedData.title);
+      formData.append("linkUrl", validatedData.linkUrl);
+      formData.append("image", validatedData.image);
+      formData.append("userId", userId);
+      // Можно добавить изображение как файл, если есть
+      // или оставить как строку base64, в зависимости от API
+      // Например, если API ожидает файл:
+      // formData.append("image", fileFromReader); // если есть файл
+      // Или если API принимает base64 строку:
+      // formData.append("image", validatedData.image);
+      // // formData.append("userId", userId);
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`Ключ: ${key}, Значение: ${value}`);
+      // }
+      // const formData = Object.keys(formValue).reduce((fd, key) => {
+      //   const k = key as keyof IFormDataCreateWork;
+      //   const value = formValue[k];
+      //   if (value !== null && value !== undefined) {
+      //     fd.append(k, value);
+      //   }
+      //   return fd;
+      // }, new FormData());
+
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`Ключ: ${key}, Значение: ${value}`);
+      // }
 
       await new Promise((resolve, reject) => {
-        createWork.mutate(payload, {
+        createWork.mutate(formData, {
           onSuccess: () => {
-            setFormValue({ title: "", linkPath: "", image: "" });
+            setFormValue({ title: "", linkUrl: "", image: null });
             if (fileInputRef.current) {
               fileInputRef.current.value = "";
             }
@@ -92,7 +123,6 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
-        // Обработка ошибок валидации
         const firstError = err.errors[0];
         setErrorMsg(firstError.message);
       } else {
@@ -121,10 +151,10 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
       />
       <input
         type="text"
-        name="linkPath"
+        name="linkUrl"
         className="px-2 py-2 border border-amber-100  disabled:bg-gray-500"
         onChange={changeHandler}
-        value={formValue.linkPath}
+        value={formValue.linkUrl}
         disabled={createWork.isPending}
       />
       <input
