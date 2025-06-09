@@ -48,7 +48,7 @@ export const Slider = ({ list }: Props) => {
                   </CardContent>
                   <CardFooter className="flex flex-col justify-center items-center gap-4">
                     <Link
-                      href={item.imageUrl}
+                      href={item.linkUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-green-500/85 px-2 py-1 rounded-md"
