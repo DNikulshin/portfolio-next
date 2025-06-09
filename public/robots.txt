@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://nikulshin-dev.ru/sitemap.xml
