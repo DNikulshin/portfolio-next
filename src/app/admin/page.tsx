@@ -47,13 +47,12 @@ export default function Admin() {
         userFromSessionEmail={userFromSession?.userEmail}
       />
       <div className="px-2 pb-4">
-      <CreateForm userId={userFromSession?.userId ?? ""} />
+        <CreateForm userId={userFromSession?.userId ?? ""} />
         <h3 className="text-center">
           Admin Page - {userFromSession?.userEmail}
         </h3>
 
         <WorkList type="list" />
-    
       </div>
     </div>
   );

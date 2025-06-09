@@ -3,7 +3,7 @@ import {
   IFormDataUpdateWork,
   IResponseDataWork,
 } from "@/types/types";
-import { Work } from "@/generated/prisma/client";
+import { Work } from "@prisma/client";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 const getWoks = async (): Promise<IResponseDataWork> => {

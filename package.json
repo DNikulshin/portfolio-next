@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack --port=3333",
     "build": "prisma generate && npm run prisma:reset && npm run prisma:deploy && next build",
     "start": "next start",
     "lint": "next lint",

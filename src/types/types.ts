@@ -1,4 +1,4 @@
-import { Work } from "@/generated/prisma/client";
+import { Work } from "@prisma/client";
 
 export interface IResponseDataWork {
   works: Work[];
