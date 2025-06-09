@@ -29,8 +29,6 @@ export async function login(prevState: unknown, formData: FormData) {
 
   const { email, password } = result.data;
 
-  console.log({ email, password });
-
   const user = await prismaClient.user.findUnique({
     where: { email },
   });
