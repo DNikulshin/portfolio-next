@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prismaClient } from "@/shared/lib/prisma-client";
-import { IFormDataCreateWork } from "@/types/types";
+// import { IFormDataCreateWork } from "@/types/types";
+import { put } from "@vercel/blob";
 
 export async function GET() {
   try {
@@ -19,21 +20,40 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { image, linkPath, title, userId }: IFormDataCreateWork =
-      await req.json();
+    const formData = await req.formData();
+    const title = formData.get("title") as string;
+    const linkUrl = formData.get("linkUrl") as string;
+    const image = formData.get("image") as File;
+    const userId = formData.get("userId") as string;
 
-    if (!image || !linkPath || !title || !userId) {
+    // const { image, linkPath, title, userId }: IFormDataCreateWork =
+    //   await req.json();
+
+    if (!image || !linkUrl || !title || !userId) {
       return NextResponse.json(
         { error: "Поля формы обязательны" },
         { status: 400 },
       );
     }
 
+    const user = await prismaClient.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (user && user?.id !== userId) {
+      return NextResponse.json({ error: "Доступ запрещен!" }, { status: 403 });
+    }
+
+    const blob = await put(image.name, image, {
+      access: "public",
+      addRandomSuffix: true,
+    });
+
     const newWork = await prismaClient.work.create({
       data: {
         title,
-        linkPath,
-        image,
+        linkUrl,
+        imageUrl: blob.url,
         userId,
       },
     });

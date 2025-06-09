@@ -38,7 +38,7 @@ export const Slider = ({ list }: Props) => {
                   <CardTitle>{item.title}</CardTitle>
                   <CardContent className="flex items-center justify-center select-none pointer-events-none">
                     <Image
-                      src={item.image}
+                      src={item.imageUrl}
                       alt={item.title}
                       width={600}
                       height={400}
@@ -48,7 +48,7 @@ export const Slider = ({ list }: Props) => {
                   </CardContent>
                   <CardFooter className="flex flex-col justify-center items-center gap-4">
                     <Link
-                      href={item.linkPath}
+                      href={item.imageUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-green-500/85 px-2 py-1 rounded-md"

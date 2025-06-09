@@ -13,8 +13,8 @@ CREATE TABLE "User" (
 CREATE TABLE "Work" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "image" TEXT NOT NULL,
-    "linkPath" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "linkUrl" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" TEXT,

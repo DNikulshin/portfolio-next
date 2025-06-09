@@ -7,8 +7,8 @@ export interface IResponseDataWork {
 
 export interface IFormDataCreateWork {
   title: string;
-  image: string;
-  linkPath: string;
+  image: File | Blob | null;
+  linkUrl: string;
   userId?: string | undefined;
 }
 
