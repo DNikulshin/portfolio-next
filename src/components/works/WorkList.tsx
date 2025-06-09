@@ -11,7 +11,7 @@ export const WorkList = ({ type }: Props) => {
   const { data, isFetching } = useGetWorkList();
 
   if (isFetching) {
-    return <Loader />;
+    return <Loader type="h-full" />;
   }
 
   if (!data?.works?.length) {

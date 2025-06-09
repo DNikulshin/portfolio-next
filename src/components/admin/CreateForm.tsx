@@ -9,15 +9,27 @@ import React, {
   useRef,
 } from "react";
 
+import { z } from "zod";
+
+// Определение схемы валидации с помощью zod
+const formSchema = z.object({
+  title: z.string().nonempty({ message: "Title is required" }),
+  linkPath: z
+    .string()
+    .nonempty({ message: "Link is required" })
+    .url({ message: "Invalid URL" }),
+  image: z.string().nonempty({ message: "Image is required" }),
+});
+
 export const CreateForm = ({ userId }: { userId?: string }) => {
   const [formValue, setFormValue] = useState<IFormDataCreateWork>({
     title: "",
     linkPath: "",
     image: "",
   });
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const createWork = useCreateNewWork();
 
   const changeHandler: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -28,9 +40,6 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64String = reader.result as string;
-          // // убрать префикс:
-          // const base64Data = base64String.split(",")[1];
-
           setFormValue((prev) => ({
             ...prev,
             image: base64String,
@@ -49,31 +58,47 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    if (!formValue.title || !formValue.linkPath || !formValue.image || !userId)
-      return;
+    // Валидация данных с помощью zod
+    try {
+      const validatedData = formSchema.parse({
+        title: formValue.title.trim(),
+        linkPath: formValue.linkPath.trim(),
+        image: formValue.image,
+      });
 
-    const payload = {
-      title: formValue.title.trim(),
-      linkPath: formValue.linkPath.trim(),
-      image: formValue.image,
-      userId,
-    };
+      if (!userId) return;
 
-    createWork.mutate(payload, {
-      onSuccess: () => {
-        setFormValue({
-          title: "",
-          linkPath: "",
-          image: "",
+      const payload = {
+        ...validatedData,
+        userId,
+      };
+
+      await new Promise((resolve, reject) => {
+        createWork.mutate(payload, {
+          onSuccess: () => {
+            setFormValue({ title: "", linkPath: "", image: "" });
+            if (fileInputRef.current) {
+              fileInputRef.current.value = "";
+            }
+            setErrorMsg(null);
+            resolve(null);
+          },
+          onError: (error) => {
+            console.log(error);
+            setErrorMsg((error as Error).message);
+            reject(error);
+          },
         });
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      },
-      onError: (error) => {
-        console.log(error);
-      },
-    });
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        // Обработка ошибок валидации
+        const firstError = err.errors[0];
+        setErrorMsg(firstError.message);
+      } else {
+        setErrorMsg("Unknown validation error");
+      }
+    }
   };
 
   if (createWork.isError) {
@@ -85,6 +110,7 @@ export const CreateForm = ({ userId }: { userId?: string }) => {
       className="flex flex-col gap-4 mx-auto container"
       onSubmit={handleSubmit}
     >
+      {errorMsg && <div className="text-red-600">{errorMsg}</div>}
       <input
         type="text"
         name="title"

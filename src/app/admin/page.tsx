@@ -24,7 +24,7 @@ export default function Admin() {
   };
 
   if (isFetchingUser) {
-    return <Loader />;
+    return <Loader  type="h-screen"/>;
   }
 
   if (isErrorUser) {
@@ -36,7 +36,7 @@ export default function Admin() {
   }
 
   if (isLogout) {
-    return <Loader />;
+    return <Loader type="h-screen"/>;
   }
 
   return (
