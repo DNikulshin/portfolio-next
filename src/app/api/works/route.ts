@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prismaClient } from "@/shared/lib/prisma-client";
-import { IFormDataCreateWork } from "@/types/types";
+// import { IFormDataCreateWork } from "@/types/types";
 import { put } from "@vercel/blob";
 
 export async function GET() {
