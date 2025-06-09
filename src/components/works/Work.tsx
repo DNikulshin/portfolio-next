@@ -1,4 +1,4 @@
-import { Work } from "@/generated/prisma";
+import { Work } from "@/generated/prisma/client";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
