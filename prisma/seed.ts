@@ -45,7 +45,7 @@ async function main() {
     data: {
       email: "admin@admin.ru",
       passwordHash:
-        "$2b$10$eXs0Clsni50d8rDR3OauiOXGsU5l1FYhk6gPymNuq.jTWc6jG52b2",
+        "$2b$10$Rz3FR/64kTcqmf4Zj6I.Se4DbuPuCNwuQCQSC9P/efottR949gTOm",
     },
   });
 
