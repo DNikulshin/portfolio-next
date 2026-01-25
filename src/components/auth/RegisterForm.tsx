@@ -56,7 +56,6 @@ export function RegisterForm() {
           <SubmitButton
             isPendingText="Подождите..."
             text="Создать аккаунт"
-            className="w-full"
           />
           <div className="mt-4 w-full text-center text-sm">
             Already have an account?{" "}

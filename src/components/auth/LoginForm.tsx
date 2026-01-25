@@ -58,7 +58,6 @@ export function LoginForm() {
           <SubmitButton
             isPendingText="Подождите..."
             text="Войти"
-            className="w-full"
           />
           <div className="mt-4 w-full text-center text-sm">
             Don't have an account?{" "}
