@@ -4,53 +4,69 @@ import { useActionState } from "react";
 import { login } from "@/shared/lib/actions";
 import { SubmitButton } from "./SubmitButton";
 import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/shared/ui/kit/card";
 
 export function LoginForm() {
   const [state, loginAction] = useActionState(login, undefined);
 
   return (
-    <form
-      action={loginAction}
-      className="justify-start pt-10 md:justify-center flex max-w-[300px] flex-col gap-5 h-screen items-center mx-auto"
-    >
-      <h1 className="text-3xl font-bold uppercase text-slate-400/85">
-        Dashboard
-      </h1>
-      <div className="flex flex-col gap-2 w-full">
-        <input
-          id="email"
-          name="email"
-          placeholder="Введите email..."
-          className="px-4 py-2 rounded-sm border border-white text-md"
-        />
-      </div>
-      {state?.errors?.email && (
-        <p className="text-red-500 break-words">{state.errors.email}</p>
-      )}
-
-      <div className="flex flex-col gap-2 w-full">
-        <input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="Введите пароль..."
-          className="px-4 py-2 rounded-sm border border-white text-md"
-        />
-      </div>
-      {state?.errors?.password && (
-        <p className="text-red-500 break-words">{state.errors.password}</p>
-      )}
-      <SubmitButton isPendingText="Подождите..." text="Войти" />
-
-      <p className="self-start">
-        Нет аккаунта ?{" "}
-        <Link
-          className="text-blue-600 underline text-lg font-bold ml-2"
-          href="/register"
-        >
-          Регистрация
-        </Link>
-      </p>
+    <form action={loginAction}>
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>
+            Enter your email below to login to your account.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              placeholder="m@example.com"
+              className="px-4 py-2 rounded-sm border border-white text-md"
+            />
+          </div>
+          {state?.errors?.email && (
+            <p className="text-red-500 break-words">{state.errors.email}</p>
+          )}
+          <div className="grid gap-2">
+            <div className="flex items-center">
+              <label htmlFor="password">Password</label>
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              className="px-4 py-2 rounded-sm border border-white text-md"
+              placeholder="Введите пароль..."
+            />
+          </div>
+          {state?.errors?.password && (
+            <p className="text-red-500 break-words">{state.errors.password}</p>
+          )}
+        </CardContent>
+        <CardFooter className='flex flex-col items-start'>
+          <SubmitButton
+            isPendingText="Подождите..."
+            text="Войти"
+          />
+          <div className="mt-4 text-center text-sm">
+            Don't have an account?{" "}
+            <Link href="/register" className="underline">
+              Sign up
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
     </form>
   );
 }

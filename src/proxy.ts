@@ -5,7 +5,7 @@ import { decrypt } from "@/shared/lib/session";
 const protectedRoutes = ["/admin"];
 const publicRoutes = ["/", "/login", "/register"];
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const url = req.nextUrl;
   const path = url.pathname;
 
