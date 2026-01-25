@@ -6,16 +6,6 @@ import {
 import { Work } from "@prisma/client";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-const getWoks = async (): Promise<IResponseDataWork> => {
-  try {
-    const data = await fetch(`/api/works`);
-    return data.json();
-  } catch (error) {
-    console.error("Error fetching works:", error);
-    throw error;
-  }
-};
-
 const create = async (formData: FormData): Promise<Work> => {
   try {
     const data = await fetch("/api/works", {
@@ -57,13 +47,6 @@ const remove = async (id: string): Promise<void> => {
   }
 };
 
-const useGetWorkList = () => {
-  return useQuery({
-    queryKey: ["works"],
-    queryFn: () => getWoks(),
-  });
-};
-
 const useCreateNewWork = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -94,4 +77,4 @@ const useDeleteWork = () => {
   });
 };
 
-export { useGetWorkList, useCreateNewWork, useDeleteWork, useUpdateWork };
+export { useCreateNewWork, useDeleteWork, useUpdateWork };

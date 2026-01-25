@@ -1,18 +1,13 @@
-import { useGetWorkList } from "@/hooks/useWork";
 import { Slider } from "../Slider";
-import { Loader } from "../Loader";
 import { WorkItem } from "./Work";
+import { getWorks } from "@/shared/api/getWorks";
 
 interface Props {
   type: "slider" | "list";
 }
 
-export const WorkList = ({ type }: Props) => {
-  const { data, isFetching } = useGetWorkList();
-
-  if (isFetching) {
-    return <Loader type="h-full" />;
-  }
+export const WorkList = async ({ type }: Props) => {
+  const data = await getWorks();
 
   if (!data?.works?.length) {
     return (

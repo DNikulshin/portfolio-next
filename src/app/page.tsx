@@ -1,5 +1,3 @@
-"use client";
-
 import { Header } from "@/components/Header";
 import { WorkList } from "@/components/works/WorkList";
 import Link from "next/link";
@@ -8,6 +6,8 @@ import { SiTypescript, SiNextdotjs, SiNuxtdotjs, SiPrisma } from "react-icons/si
 import { MdAlternateEmail } from "react-icons/md";
 import Image from "next/image";
 import Avatar from "@/images/avatar.webp";
+import { Suspense } from "react";
+import { WorkSliderSkeleton } from "@/components/works/WorkSliderSkeleton";
 
 export default function Home() {
   return (
@@ -120,7 +120,9 @@ export default function Home() {
         {/* Works Section */}
         <section id="works" className="py-20">
           <h3 className="text-3xl font-bold text-center mb-12">Мои работы</h3>
-          <WorkList type="slider" />
+          <Suspense fallback={<WorkSliderSkeleton />}>
+            <WorkList type="slider" />
+          </Suspense>
         </section>
 
       </main>

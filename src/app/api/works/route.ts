@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prismaClient } from "@/shared/lib/prisma-client";
-// import { IFormDataCreateWork } from "@/types/types";
 import { put } from "@vercel/blob";
+import { getWorks } from "@/shared/api/getWorks";
 
 export async function GET() {
   try {
-    const totalCount = await prismaClient.work.count();
-    const works = await prismaClient.work.findMany({});
-
-    return NextResponse.json({ works, totalCount }, { status: 200 });
+    const data = await getWorks();
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Ошибка при обработке GET запроса:", error);
     return NextResponse.json(
@@ -25,9 +23,6 @@ export async function POST(req: NextRequest) {
     const linkUrl = formData.get("linkUrl") as string;
     const image = formData.get("image") as File;
     const userId = formData.get("userId") as string;
-
-    // const { image, linkPath, title, userId }: IFormDataCreateWork =
-    //   await req.json();
 
     if (!image || !linkUrl || !title || !userId) {
       return NextResponse.json(

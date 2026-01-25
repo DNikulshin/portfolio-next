@@ -1,19 +1,20 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import Autoplay from "embla-carousel-autoplay";
-import Image from "next/image";
+import { useRef, useState, useEffect } from 'react';
+import Autoplay from 'embla-carousel-autoplay';
+import Image from 'next/image';
 
-import { Card, CardContent, CardFooter, CardTitle } from "@/shared/ui/kit/card";
+import { Card, CardContent, CardFooter, CardTitle } from '@/shared/ui/kit/card';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/shared/ui/kit/carousel";
-import Link from "next/link";
-import { Work } from "@prisma/client";
+} from '@/shared/ui/kit/carousel';
+import Link from 'next/link';
+import { Work } from '@prisma/client';
+import { WorkSliderSkeleton } from './works/WorkSliderSkeleton';
 
 interface Props {
   list: Work[];
@@ -21,6 +22,37 @@ interface Props {
 
 export const Slider = ({ list }: Props) => {
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!list || list.length === 0) {
+        setImagesLoaded(true);
+        return;
+    }
+
+    const loadImage = (url: string) => {
+      return new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.src = url;
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+    };
+
+    Promise.all(list.map((item) => loadImage(item.imageUrl)))
+      .then(() => {
+        setImagesLoaded(true);
+      })
+      .catch((err) => {
+        console.error('Failed to preload images', err);
+        // Показать слайдер даже если картинки не загрузились, чтобы избежать вечного скелета
+        setImagesLoaded(true);
+      });
+  }, [list]);
+
+  if (!imagesLoaded) {
+    return <WorkSliderSkeleton />;
+  }
 
   return (
     <div className="flex flex-col w-full overflow-hidden" tabIndex={0}>
@@ -43,7 +75,6 @@ export const Slider = ({ list }: Props) => {
                       width={600}
                       height={400}
                       className="w-fit h-auto max-h-[400px]"
-                      priority
                     />
                   </CardContent>
                   <CardFooter className="flex flex-col justify-center items-center gap-4">
