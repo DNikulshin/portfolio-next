@@ -1,17 +1,14 @@
 import Link from "next/link";
 import { FaUserAlt } from "react-icons/fa";
+import { SessionPayload } from "@/shared/lib/session";
 
 interface Props {
-  userFromSessionEmail: string | undefined;
+  user: SessionPayload;
   isLogout: boolean;
-  logoutHandler: () => void;
+  logout: () => void;
 }
 
-export const AdminHeader = ({
-  isLogout,
-  logoutHandler,
-  userFromSessionEmail,
-}: Props) => {
+export const AdminHeader = ({ isLogout, logout, user }: Props) => {
   return (
     <header className="flex justify-between items-center px-3 py-4 shadow-sm shadow-amber-100 mb-4 flex-wrap gap-2 sticky top-0 z-30 bg-slate-800/90">
       <div className=" container mx-auto">
@@ -19,9 +16,7 @@ export const AdminHeader = ({
           <span className="text-xl">
             <FaUserAlt />{" "}
           </span>
-          <span className="text-ellipsis overflow-hidden">
-            {userFromSessionEmail}
-          </span>
+          <span className="text-ellipsis overflow-hidden">{user?.userEmail}</span>
           <Link href={"/"}>На главную</Link>
         </div>
 
@@ -29,7 +24,7 @@ export const AdminHeader = ({
           <button
             className="bg-red-500 px-3 py-1.5 rounded-sm cursor-pointer disabled:bg-gray-400 shadow-sm shadow-red-500/50"
             disabled={isLogout}
-            onClick={logoutHandler}
+            onClick={logout}
           >
             Выйти
           </button>

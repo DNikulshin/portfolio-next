@@ -8,6 +8,7 @@ import Image from "next/image";
 import Avatar from "@/images/avatar.webp";
 import { Suspense } from "react";
 import { WorkSliderSkeleton } from "@/components/works/WorkSliderSkeleton";
+import { AnimatedSection } from "@/components/AnimatedSection";
 
 export default function Home() {
   return (
@@ -15,7 +16,7 @@ export default function Home() {
       <Header />
 
       <main className="container mx-auto px-4 py-8 flex-grow">
-        {/* Hero Section */}
+        {/* Hero Section - Анимация для этой секции будет немного другой */}
         <section id="hero" className="flex flex-col items-center justify-between py-20 md:flex-row">
           <div className="mb-10 flex flex-col items-center text-center md:mb-0 md:w-1/2 md:items-start md:text-left">
             <h2 className="text-4xl font-bold mb-4">Dmitriy Nikulshin</h2>
@@ -46,24 +47,21 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Freelance Section */}
-        <section id="freelance" className="py-16 my-8 bg-primary text-primary-foreground rounded-lg px-6 text-center">
+        <AnimatedSection id="freelance" className="py-16 my-8 bg-primary text-primary-foreground rounded-lg px-6 text-center">
             <h3 className="text-3xl font-bold mb-4">🤝 Ваш удалённый fullstack-специалист</h3>
             <p className="text-lg mb-2">От концепции до кода: React, TypeScript, Node.js, базы данных, API.</p>
             <p className="text-lg mb-6">Работаю как часть команды или самостоятельно — вам нужно лишь задание.</p>
             <Link href="https://t.me/dmtr_nik" target="_blank" rel="noopener noreferrer" className="text-lg underline hover:text-secondary font-bold">Связаться → @dmtr_nik</Link>
-        </section>
+        </AnimatedSection>
 
-        {/* About Me Section */}
-        <section id="about" className="py-20 bg-card text-card-foreground rounded-lg px-6">
+        <AnimatedSection id="about" className="py-20 bg-card text-card-foreground rounded-lg px-6">
           <h3 className="text-3xl font-bold text-center mb-8">Обо мне</h3>
           <p className="max-w-3xl mx-auto text-center text-lg">
             Я - full-stack разработчик с опытом создания веб-приложений с нуля. Мне нравится работать как с фронтендом, так и с бэкендом, используя современные технологии для создания интуитивно понятных и производительных пользовательских интерфейсов. Постоянно учусь и совершенствую свои навыки, чтобы быть в курсе последних тенденций в веб-разработке.
           </p>
-        </section>
+        </AnimatedSection>
 
-        {/* Skills Section */}
-        <section id="skills" className="py-20">
+        <AnimatedSection id="skills" className="py-20">
           <h3 className="text-3xl font-bold text-center mb-12">Навыки</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 text-center">
             <div className="flex flex-col items-center gap-2">
@@ -115,15 +113,14 @@ export default function Home() {
               <span>Databases</span>
             </div>
           </div>
-        </section>
+        </AnimatedSection>
 
-        {/* Works Section */}
-        <section id="works" className="py-20">
+        <AnimatedSection id="works" className="py-20">
           <h3 className="text-3xl font-bold text-center mb-12">Мои работы</h3>
           <Suspense fallback={<WorkSliderSkeleton />}>
             <WorkList type="slider" />
           </Suspense>
-        </section>
+        </AnimatedSection>
 
       </main>
 

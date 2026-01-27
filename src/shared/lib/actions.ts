@@ -18,79 +18,84 @@ const authSchema = z.object({
     .trim(),
 });
 
-export async function login(prevState: unknown, formData: FormData) {
-  const result = authSchema.safeParse(Object.fromEntries(formData));
+type AuthResponse = {
+  success: boolean;
+  error?: string;
+};
 
-  if (!result.success) {
-    return {
-      errors: result.error.flatten().fieldErrors,
-    };
+export async function login(
+  values: z.infer<typeof authSchema>,
+): Promise<AuthResponse> {
+  const validatedFields = authSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return { success: false, error: "Неверные поля" };
   }
 
-  const { email, password } = result.data;
+  const { email, password } = validatedFields.data;
 
-  const user = await prismaClient.user.findUnique({
-    where: { email },
-  });
+  try {
+    const user = await prismaClient.user.findUnique({
+      where: { email },
+    });
 
-  if (!user) {
-    return {
-      errors: {
-        email: ["Неверный email или пароль"],
-      },
-    };
+    if (!user || !user.passwordHash) {
+      return { success: false, error: "Неверный email или пароль" };
+    }
+
+    const passwordsMatch = await compare(password, user.passwordHash);
+
+    if (!passwordsMatch) {
+      return { success: false, error: "Неверный email или пароль" };
+    }
+
+    await createSession(user.id, user.email);
+
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Что-то пошло не так." };
   }
-
-  const comparePassword = await compare(password, user.passwordHash);
-
-  if (!comparePassword) {
-    return {
-      errors: {
-        email: ["Неверный email или пароль"],
-      },
-    };
-  }
-
-  await createSession(user.id, user.email);
-
-  redirect("/admin");
 }
 
-export async function register(prevState: unknown, formData: FormData) {
-  const result = authSchema.safeParse(Object.fromEntries(formData));
+export async function register(
+  values: z.infer<typeof authSchema>,
+): Promise<AuthResponse> {
+  const validatedFields = authSchema.safeParse(values);
 
-  if (!result.success) {
-    return {
-      errors: result.error.flatten().fieldErrors,
-    };
+  if (!validatedFields.success) {
+    return { success: false, error: "Неверные поля" };
   }
 
-  const { email, password } = result.data;
+  const { email, password } = validatedFields.data;
 
-  const existingUser = await prismaClient.user.findUnique({
-    where: { email },
-  });
+  try {
+    const existingUser = await prismaClient.user.findUnique({
+      where: { email },
+    });
 
-  if (existingUser) {
-    return {
-      errors: {
-        email: ["Пользователь с таким email уже существует"],
+    if (existingUser) {
+      return {
+        success: false,
+        error: "Пользователь с таким email уже существует",
+      };
+    }
+
+    const passwordHash = await hash(password, 10);
+    const user = await prismaClient.user.create({
+      data: {
+        email,
+        passwordHash,
       },
-    };
+    });
+
+    await createSession(user.id, user.email);
+
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "Что-то пошло не так." };
   }
-
-  const passwordHash = await hash(password, 10);
-
-  const user = await prismaClient.user.create({
-    data: {
-      email,
-      passwordHash,
-    },
-  });
-
-  await createSession(user.id, user.email);
-
-  redirect("/admin");
 }
 
 export async function logout() {

@@ -9,11 +9,10 @@ interface ConvertOptions {
 }
 
 /**
- * Converts an image to WebP format.
+ * Converts an image to WebP format from a file path.
  * @param options ConvertOptions
  * @returns Path to the converted WebP image
  */
-
 export async function convertImageToWebp(
   options: ConvertOptions,
 ): Promise<string> {
@@ -30,4 +29,15 @@ export async function convertImageToWebp(
   await sharp(inputPath).webp().toFile(outputFile);
 
   return outputFile; // Return the path to the WebP image
+}
+
+/**
+ * Converts an image buffer to a WebP buffer.
+ * @param inputBuffer The buffer of the image to convert.
+ * @returns A buffer of the converted WebP image.
+ */
+export async function convertImageBufferToWebP(
+  inputBuffer: Buffer,
+): Promise<Buffer> {
+  return sharp(inputBuffer).webp().toBuffer();
 }

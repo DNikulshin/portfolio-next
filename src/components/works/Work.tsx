@@ -1,3 +1,5 @@
+'use client';
+
 import { Work } from "@prisma/client";
 import React from "react";
 import Image from "next/image";

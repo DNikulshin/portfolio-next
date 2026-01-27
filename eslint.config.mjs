@@ -1,11 +1,10 @@
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
-import nextTypescript from "eslint-config-next/typescript";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import next from "eslint-config-next";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const config = [
+  ...next,
+  {
+    ignores: ["src/generated/prisma/**"],
+  },
+];
 
-const eslintConfig = [...nextCoreWebVitals, ...nextTypescript];
-
-export default [...eslintConfig, { ignores: ["src/generated/prisma/**"] }];
+export default config;

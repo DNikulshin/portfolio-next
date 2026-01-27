@@ -1,70 +1,101 @@
-"use client";
+'use client';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/shared/ui/kit/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/kit/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/kit/form';
+import { register } from '@/shared/lib/actions';
+import { useState, useTransition } from 'react';
+import { toast } from 'sonner';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/shared/ui/kit/input';
 
-import { useActionState } from "react";
-import { register } from "@/shared/lib/actions";
-import Link from "next/link";
-import { SubmitButton } from "./SubmitButton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/kit/card";
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
 
-export function RegisterForm() {
-  const [state, registerAction] = useActionState(register, undefined);
+type FormValues = z.infer<typeof formSchema>;
+
+export const RegisterForm = () => {
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = (values: FormValues) => {
+    setError(null);
+    startTransition(async () => {
+      const response = await register(values);
+
+      if (response.error) {
+        setError(response.error);
+        toast.error(response.error);
+      } else {
+        toast.success('Registration successful!');
+        router.push('/admin');
+      }
+    });
+  };
 
   return (
-    <form action={registerAction}>
-      <Card className="w-full border-border md:w-[400px]">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign Up</CardTitle>
-          <CardDescription>
-            Enter your information to create an account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <label htmlFor="email" className="text-sm font-medium leading-none">Email</label>
-            <input
-              id="email"
+    <Card className="w-full max-w-sm">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <CardHeader>
+            <CardTitle className="text-2xl">Sign Up</CardTitle>
+            <CardDescription>Enter your information to create an account.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <FormField
+              control={form.control}
               name="email"
-              placeholder="m@example.com"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="m@example.com" type="email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          {state?.errors?.email && (
-            <p className="text-sm text-red-500 break-words">{state.errors.email}</p>
-          )}
-          <div className="grid gap-2">
-            <label htmlFor="password" className="text-sm font-medium leading-none">Password</label>
-            <input
-              id="password"
+            <FormField
+              control={form.control}
               name="password"
-              type="password"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="Введите пароль..."
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          {state?.errors?.password && (
-            <p className="text-sm text-red-500 break-words">{state.errors.password}</p>
-          )}
-        </CardContent>
-        <CardFooter className='flex w-full flex-col'>
-          <SubmitButton
-            isPendingText="Подождите..."
-            text="Создать аккаунт"
-          />
-          <div className="mt-4 w-full text-center text-sm">
-            Already have an account?{" "}
-            <Link href="/login" className="underline">
-              Sign in
-            </Link>
-          </div>
-        </CardFooter>
-      </Card>
-    </form>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </CardContent>
+          <CardFooter className="flex-col">
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? 'Creating account...' : 'Create account'}
+            </Button>
+            <div className="mt-4 text-center text-sm">
+              Already have an account?{" "}
+              <Link href="/login" className="underline">
+                Sign in
+              </Link>
+            </div>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
-}
+};

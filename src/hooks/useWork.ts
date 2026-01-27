@@ -1,10 +1,7 @@
 import {
-  // IFormDataCreateWork,
-  // IFormDataUpdateWork,
-  IResponseDataWork,
 } from "@/types/types";
 import { Work } from "@prisma/client";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import {  useQueryClient, useMutation } from "@tanstack/react-query";
 
 const create = async (formData: FormData): Promise<Work> => {
   try {
