@@ -5,7 +5,7 @@ import { FaGithub, FaTelegram, FaHtml5, FaCss3Alt, FaJs, FaReact, FaVuejs, FaNod
 import { SiTypescript, SiNextdotjs, SiNuxtdotjs, SiPrisma } from "react-icons/si";
 import { MdAlternateEmail } from "react-icons/md";
 import Image from "next/image";
-import Avatar from "@/images/avatar.webp";
+import Avatar from "@/images/avatar3.webp";
 import { Suspense } from "react";
 import { WorkSliderSkeleton } from "@/components/works/WorkSliderSkeleton";
 import { AnimatedSection } from "@/components/AnimatedSection";
