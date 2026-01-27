@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "npx prettier -w .",
-    "prismarisma:reset": "npx prisma migrate reset --force",
+    "prisma:reset": "npx prisma migrate reset --force",
     "prisma:deploy": "npx prisma migrate deploy",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:generate": "npx prisma generate"
