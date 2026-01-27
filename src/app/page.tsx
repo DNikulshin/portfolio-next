@@ -16,7 +16,7 @@ export default function Home() {
       <Header />
 
       <main className="container mx-auto px-4 py-8 flex-grow">
-        {/* Hero Section - Анимация для этой секции будет немного другой */}
+        {/* Hero Section */}
         <section id="hero" className="flex flex-col items-center justify-between py-20 md:flex-row">
           <div className="mb-10 flex flex-col items-center text-center md:mb-0 md:w-1/2 md:items-start md:text-left">
             <h2 className="text-4xl font-bold mb-4">Dmitriy Nikulshin</h2>
@@ -35,11 +35,11 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="md:w-1/3">
+          <div className="w-48 h-48 md:w-64 md:h-64">
             <Image
               src={Avatar}
               alt="Dmitriy Nikulshin"
-              className="rounded-full shadow-lg"
+              className="rounded-full shadow-lg w-full h-full object-contain"
               width={300}
               height={300}
               priority
