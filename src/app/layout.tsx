@@ -27,7 +27,8 @@ export const metadata: Metadata = {
   title: "Portfolio | Nikulshin D.",
   description: "Developer page - Nikulshin Dmitry",
   generator: "Next.js",
-  manifest: "/manifest.json",
+  // Условно подключаем манифест только для продакшен-сборки
+  manifest: process.env.NODE_ENV === 'production' ? '/manifest.json' : undefined,
   keywords: [
     "Portfolio",
     "Developer page",

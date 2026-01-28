@@ -6,6 +6,7 @@ import { AdminHeader } from "@/components/admin/AdminHeader";
 import { logout } from "@/shared/lib/actions";
 import { Loader } from "@/components/Loader";
 import { CreateForm } from "@/components/admin/CreateForm";
+import { WorkList } from "@/components/works/WorkList";
 
 export function AdminDashboard() {
   const [isLogout, setIsLogout] = useState(false);
@@ -23,6 +24,7 @@ export function AdminDashboard() {
     setIsLogout(false);
   };
 
+  // Пока идет проверка пользователя, показываем один полноэкранный лоадер
   if (isFetchingUser) {
     return <Loader type="h-screen" />;
   }
@@ -35,10 +37,13 @@ export function AdminDashboard() {
     );
   }
 
+  // Если пользователь не авторизован, можно показать форму входа или перенаправить
+  // Сейчас просто показываем лоадер, чтобы избежать мелькания контента
   if (!userFromSession) {
     return <Loader type="h-screen" />;
   }
 
+  // Когда пользователь подтвержден, рендерим весь контент админки
   return (
     <>
       <AdminHeader
@@ -46,7 +51,18 @@ export function AdminDashboard() {
         isLogout={isLogout}
         logout={logoutHandler}
       />
-      <CreateForm userId={userFromSession?.userId} />
+      <main className="container mx-auto px-4">
+        <section className="py-8 border-b border-dashed">
+          <h2 className="text-2xl font-bold mb-4 text-center">Добавить новую работу</h2>
+          <CreateForm userId={userFromSession?.userId} />
+        </section>
+
+        {/* WorkList теперь здесь, он начнет загрузку только после рендера этой секции */}
+        <section className="py-8">
+          <h2 className="text-2xl font-bold mb-4 text-center">Список работ</h2>
+          <WorkList type="list" />
+        </section>
+      </main>
     </>
   );
 }

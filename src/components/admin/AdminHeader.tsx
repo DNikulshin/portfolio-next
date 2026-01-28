@@ -1,33 +1,55 @@
-import Link from "next/link";
-import { FaUserAlt } from "react-icons/fa";
-import { SessionPayload } from "@/shared/lib/session";
+'use client';
 
-interface Props {
-  user: SessionPayload;
+import { IUserData } from "@/types/types";
+import { Button } from "@/shared/ui/kit/button";
+import { useRunSeed } from "@/hooks/useWork";
+import Link from "next/link"; // Импортируем Link
+
+interface AdminHeaderProps {
+  user: IUserData | null;
   isLogout: boolean;
   logout: () => void;
 }
 
-export const AdminHeader = ({ isLogout, logout, user }: Props) => {
-  return (
-    <header className="flex justify-between items-center px-3 py-4 shadow-sm shadow-amber-100 mb-4 flex-wrap gap-2 sticky top-0 z-30 bg-slate-800/90">
-      <div className=" container mx-auto">
-        <div className="flex gap-2  justify-center items-center w-full mb-2">
-          <span className="text-xl">
-            <FaUserAlt />{" "}
-          </span>
-          <span className="text-ellipsis overflow-hidden">{user?.userEmail}</span>
-          <Link href={"/"}>На главную</Link>
-        </div>
+export const AdminHeader = ({ user, isLogout, logout }: AdminHeaderProps) => {
+  const runSeedMutation = useRunSeed();
 
-        <div className="flex justify-between gap-3 items-center w-full">
-          <button
-            className="bg-red-500 px-3 py-1.5 rounded-sm cursor-pointer disabled:bg-gray-400 shadow-sm shadow-red-500/50"
-            disabled={isLogout}
-            onClick={logout}
+  const handleRunSeed = () => {
+    if (
+      window.confirm(
+        "Вы уверены, что хотите сбросить базу данных и выйти из системы? Это действие необратимо.",
+      )
+    ) {
+      runSeedMutation.mutate();
+    }
+  };
+
+  return (
+    <header className="bg-gray-800 text-white shadow-md">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-6"> {/* Обертка для заголовка и ссылки */} 
+          <h1 className="text-xl font-bold">Админ-панель</h1>
+          <Link href="/" passHref>
+            <Button variant="outline" size="sm"> 
+              На главную
+            </Button>
+          </Link>
+        </div>
+        <div className="flex items-center gap-4">
+          {user && <span className="text-sm">{user.email}</span>}
+
+          <Button
+            onClick={handleRunSeed}
+            disabled={runSeedMutation.isPending}
+            variant="destructive"
+            size="sm"
           >
-            Выйти
-          </button>
+            {runSeedMutation.isPending ? "Сброс..." : "Сбросить БД"}
+          </Button>
+
+          <Button onClick={logout} disabled={isLogout} variant="outline" size="sm">
+            {isLogout ? "Выход..." : "Выход"}
+          </Button>
         </div>
       </div>
     </header>
