@@ -23,29 +23,41 @@ interface Props {
 export const Slider = ({ list }: Props) => {
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [displayList, setDisplayList] = useState<Work[]>([]);
 
   useEffect(() => {
-    if (!list || list.length === 0) {
+    const initialValidList = list.filter(item => item.imageUrl);
+
+    if (initialValidList.length === 0) {
         setImagesLoaded(true);
+        setDisplayList([]);
         return;
     }
 
     const loadImage = (url: string) => {
       return new Promise((resolve, reject) => {
+        if (!url) {
+          return reject('Image URL is null or empty');
+        }
         const img = new window.Image();
         img.src = url;
-        img.onload = resolve;
-        img.onerror = reject;
+        img.onload = () => resolve(url);
+        img.onerror = () => reject(`Failed to load image at: ${url}`);
       });
     };
 
-    Promise.all(list.map((item) => loadImage(item.imageUrl)))
-      .then(() => {
-        setImagesLoaded(true);
-      })
-      .catch((err) => {
-        console.error('Failed to preload images', err);
-        // Показать слайдер даже если картинки не загрузились, чтобы избежать вечного скелета
+    Promise.allSettled(initialValidList.map((item) => loadImage(item.imageUrl)))
+      .then((results) => {
+        const successfullyLoadedWorks = initialValidList.filter((_item, index) => {
+            return results[index].status === 'fulfilled';
+        });
+
+        const failedLoads = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
+        if (failedLoads.length > 0) {
+            console.warn('Some images failed to preload:', failedLoads.map(f => f.reason));
+        }
+
+        setDisplayList(successfullyLoadedWorks);
         setImagesLoaded(true);
       });
   }, [list]);
@@ -63,7 +75,7 @@ export const Slider = ({ list }: Props) => {
         onMouseLeave={plugin.current.reset}
       >
         <CarouselContent>
-          {list.map((item, index) => (
+          {displayList.map((item, index) => (
             <CarouselItem key={index}>
               <div className="text-center">
                 <Card>
@@ -74,7 +86,8 @@ export const Slider = ({ list }: Props) => {
                       alt={item.title}
                       width={600}
                       height={400}
-                      className="w-fit h-auto max-h-[400px]"
+                      className="w-full h-auto" // ИЗМЕНЕНО: Исправлены стили для сохранения пропорций
+                      priority={index === 0} // ИЗМЕНЕНО: Добавлен приоритет для первого изображения (LCP)
                     />
                   </CardContent>
                   <CardFooter className="flex flex-col justify-center items-center gap-4">
@@ -87,7 +100,7 @@ export const Slider = ({ list }: Props) => {
                       View project
                     </Link>
                     <div className="text-muted-foreground py-2 text-center text-sm ">
-                      Slide {index + 1} of {list.length}
+                      Slide {index + 1} of {displayList.length}
                     </div>
                   </CardFooter>
                 </Card>

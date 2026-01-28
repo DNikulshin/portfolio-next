@@ -1,77 +1,104 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
-} from "@/types/types";
-import { Work } from "@prisma/client";
-import {  useQueryClient, useMutation } from "@tanstack/react-query";
+  createNewWork as createNewWorkApi,
+  deleteWork as deleteWorkApi,
+  runDbSeed as runDbSeedApi,
+  updateWork as updateWorkApi,
+} from "@/shared/api/works";
+import { getWorksClient } from "@/shared/api/client/getWorks";
+import { logout } from "@/shared/lib/actions"; // Импортируем logout
 
-const create = async (formData: FormData): Promise<Work> => {
-  try {
-    const data = await fetch("/api/works", {
-      method: "POST",
-      body: formData,
-    });
+// --- QUERIES (ЗАПРОСЫ ДАННЫХ) ---
 
-    return await data.json();
-  } catch (error) {
-    throw error;
-  }
+export const useWorks = () => {
+  return useQuery({
+    queryKey: ["works"],
+    queryFn: getWorksClient,
+  });
 };
 
-const update = async (formData: FormData): Promise<Work> => {
-  const workId = formData.get("workId");
-  try {
-    const data = await fetch(`/api/works/${workId}`, {
-      method: "POST",
-      body: formData,
-    });
+// --- MUTATIONS (ИЗМЕНЕНИЕ ДАННЫХ) ---
 
-    return await data.json();
-  } catch (error) {
-    throw error;
-  }
-};
-
-const remove = async (id: string): Promise<void> => {
-  try {
-    const response = await fetch(`/api/works/${id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to delete work with id ${id}`);
-    }
-  } catch (error) {
-    console.error("Error deleting work:", error);
-    throw error;
-  }
-};
-
-const useCreateNewWork = () => {
+export const useCreateNewWork = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (work: FormData) => create(work),
-    onSettled: () => {
+    mutationFn: createNewWorkApi,
+    onSuccess: (data) => {
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      toast.success("Новая работа успешно создана!");
       queryClient.invalidateQueries({ queryKey: ["works"] });
+    },
+    onError: (error) => {
+      toast.error(`Ошибка: ${error.message}`);
     },
   });
 };
 
-const useUpdateWork = () => {
+export const useUpdateWork = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (work: FormData) => update(work),
-    onSettled: () => {
+    mutationFn: ({ id, data }: { id: string; data: FormData }) =>
+      updateWorkApi(id, data),
+    onSuccess: (data) => {
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      toast.success("Работа успешно обновлена!");
       queryClient.invalidateQueries({ queryKey: ["works"] });
+    },
+    onError: (error) => {
+      toast.error(`Ошибка: ${error.message}`);
     },
   });
 };
 
-const useDeleteWork = () => {
+export const useDeleteWork = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (id: string) => remove(id),
-    onSettled: () => {
+    mutationFn: deleteWorkApi,
+    onSuccess: (data) => {
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      toast.success("Работа успешно удалена!");
       queryClient.invalidateQueries({ queryKey: ["works"] });
+    },
+    onError: (error) => {
+      toast.error(`Ошибка: ${error.message}`);
     },
   });
 };
 
-export { useCreateNewWork, useDeleteWork, useUpdateWork };
+export const useRunSeed = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: runDbSeedApi,
+    onSuccess: (data) => {
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      toast.success("База данных сброшена! Вы будете разлогинены.");
+      
+      queryClient.invalidateQueries({ queryKey: ["works"] });
+
+      // Добавляем небольшую задержку, чтобы пользователь успел прочитать тост
+      setTimeout(() => {
+        logout();
+      }, 2500);
+    },
+    onError: (error) => {
+      toast.error(`Ошибка при восстановлении: ${error.message}`);
+    },
+  });
+};

@@ -1,33 +1,34 @@
-import { prismaClient } from "@/shared/lib/prisma-client";
 import { NextRequest, NextResponse } from "next/server";
-import { IFormDataUpdateWork } from "@/types/types";
+import { prismaClient } from "@/shared/lib/prisma-client";
+import { put, del } from "@vercel/blob";
+
+// Определение CORS-заголовков для многократного использования
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
 export async function GET(
-  req: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
-
-    if (!id) {
+    const id = (await params).id;
+    const work = await prismaClient.work.findUnique({
+      where: { id },
+    });
+    if (!work) {
       return NextResponse.json(
-        { error: "Отсутствует ID работы" },
-        { status: 400 },
+        { error: "Work not found" },
+        { status: 404, headers: corsHeaders },
       );
     }
-
-    const work = await prismaClient.work.findUnique({ where: { id } });
-
-    if (!work) {
-      return NextResponse.json({ error: "Работа не найдена" }, { status: 404 });
-    }
-
-    return NextResponse.json(work, { status: 200 });
+    return NextResponse.json(work, { status: 200, headers: corsHeaders });
   } catch (error) {
-    console.error("Ошибка при обработке GET запроса:", error);
     return NextResponse.json(
-      { error: (error as Error).message || "Внутренняя ошибка сервера" },
-      { status: 500 },
+      { error: (error as Error).message || "Server error" },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
@@ -37,36 +38,44 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
+    const id = (await params).id;
+    const formData = await req.formData();
+    const title = formData.get("title") as string;
+    const linkUrl = formData.get("linkUrl") as string;
+    const image = formData.get("image") as File | null;
 
-    if (!id) {
-      return NextResponse.json(
-        { error: "Отсутствует ID работы" },
-        { status: 400 },
-      );
-    }
+    let imageUrl: string | undefined;
 
-    const data: IFormDataUpdateWork = await req.json();
+    if (image) {
+      const existingWork = await prismaClient.work.findUnique({
+        where: { id },
+        select: { imageUrl: true },
+      });
+      if (existingWork && existingWork.imageUrl) {
+        await del(existingWork.imageUrl);
+      }
 
-    const existingWork = await prismaClient.work.findUnique({
-      where: { id },
-    });
-
-    if (!existingWork) {
-      return NextResponse.json({ error: "Работа не найдена" }, { status: 404 });
+      const blob = await put(image.name, image, {
+        access: "public",
+        addRandomSuffix: true,
+      });
+      imageUrl = blob.url;
     }
 
     const updatedWork = await prismaClient.work.update({
-      where: { id: data.id },
-      data: { ...data },
+      where: { id },
+      data: {
+        title,
+        linkUrl,
+        ...(imageUrl && { imageUrl }),
+      },
     });
 
-    return NextResponse.json(updatedWork, { status: 200 });
+    return NextResponse.json(updatedWork, { status: 200, headers: corsHeaders });
   } catch (error) {
-    console.error("Ошибка при обновлении работы:", error);
     return NextResponse.json(
-      { error: (error as Error).message || "Внутренняя ошибка сервера" },
-      { status: 500 },
+      { error: (error as Error).message || "Server error" },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
@@ -76,32 +85,31 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
+    const id = (await params).id;
+    const workToDelete = await prismaClient.work.findUnique({
+      where: { id },
+      select: { imageUrl: true },
+    });
 
-    if (!id) {
-      return NextResponse.json(
-        { error: "Отсутствует ID работы" },
-        { status: 400 },
-      );
-    }
-
-    const work = await prismaClient.work.findUnique({ where: { id } });
-
-    if (!work) {
-      return NextResponse.json({ error: "Работа не найдена" }, { status: 404 });
+    if (workToDelete && workToDelete.imageUrl) {
+      await del(workToDelete.imageUrl);
     }
 
     await prismaClient.work.delete({ where: { id } });
 
     return NextResponse.json(
-      { message: "Работа успешно удалена" },
-      { status: 200 },
+      { message: "Work deleted" },
+      { status: 200, headers: corsHeaders },
     );
   } catch (error) {
-    console.error("Ошибка при удалении работы:", error);
     return NextResponse.json(
-      { error: (error as Error).message || "Внутренняя ошибка сервера" },
-      { status: 500 },
+      { error: (error as Error).message || "Server error" },
+      { status: 500, headers: corsHeaders },
     );
   }
+}
+
+// Обработчик для OPTIONS-запросов (preflight)
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json({}, { headers: corsHeaders });
 }

@@ -22,5 +22,5 @@ export interface IFormDataUpdateWork {
 
 export interface IUserData {
   email: string;
-  error: string | null;
+  userId: string;
 }
