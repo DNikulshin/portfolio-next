@@ -9,4 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Render App
-        run: curl -s https://nikulshin-dev.ru/api/health
+        run: |
+          echo "Pinging at $(date)"
+          curl -s https://nikulshin-dev.ru/api/health
