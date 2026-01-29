@@ -3,7 +3,7 @@
 import { IUserData } from "@/types/types";
 import { Button } from "@/shared/ui/kit/button";
 import { useRunSeed } from "@/hooks/useWork";
-import Link from "next/link"; // Импортируем Link
+import Link from "next/link";
 
 interface AdminHeaderProps {
   user: IUserData | null;
@@ -26,17 +26,19 @@ export const AdminHeader = ({ user, isLogout, logout }: AdminHeaderProps) => {
 
   return (
     <header className="bg-gray-800 text-white shadow-md">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-6"> {/* Обертка для заголовка и ссылки */} 
+      <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row sm:justify-between items-center gap-4">
+        
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
           <h1 className="text-xl font-bold">Админ-панель</h1>
           <Link href="/" passHref>
-            <Button variant="outline" size="sm"> 
+            <Button variant="outline" size="sm">
               На главную
             </Button>
           </Link>
         </div>
-        <div className="flex items-center gap-4">
-          {user && <span className="text-sm">{user.email}</span>}
+
+        <div className="flex flex-wrap justify-center items-center gap-4">
+          {user && <span className="text-sm order-first sm:order-none w-full sm:w-auto text-center sm:text-left mb-2 sm:mb-0">{user.email}</span>}
 
           <Button
             onClick={handleRunSeed}
