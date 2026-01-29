@@ -1,0 +1,12 @@
+name: Keep Alive Render
+on:
+  schedule:
+    - cron: '*/10 * * * *' # Запуск каждые 10 минут
+  workflow_dispatch:      # Позволяет запустить вручную
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render App
+        run: curl -s https://nikulshin-dev.ru/api/health
