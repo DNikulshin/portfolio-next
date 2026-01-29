@@ -1,60 +1,74 @@
 'use client';
 
-import { Work } from "@prisma/client";
-import React, { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { useDeleteWork } from "@/hooks/useWork";
-import { MdDelete } from "react-icons/md";
-import { FaEdit } from "react-icons/fa";
-import { UpdateForm } from "@/components/admin/UpdateForm";
+import { Work } from '@prisma/client';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useDeleteWork } from '@/hooks/useWork';
+import { MdDelete } from 'react-icons/md';
+import { FaEdit } from 'react-icons/fa';
+import { UpdateForm } from '@/components/admin/UpdateForm';
 
 export const WorkItem = (work: Work) => {
   const [isEditing, setIsEditing] = useState(false);
   const deleteWork = useDeleteWork();
 
   return (
-    <div className="shadow-sm shadow-amber-100 px-4 py-4 rounded-lg">
-      <div className="flex gap-2 justify-between items-center">
-        <div>{work.title}</div>
+    <div className="bg-gray-800 border border-gray-700 shadow-lg rounded-xl overflow-hidden">
+      
+      {/* Основной контент: изображение + информация */}
+      <div className="flex flex-col md:flex-row items-start gap-4 p-4">
         
-        {/* ИЗМЕНЕНО: Возвращаем гибкий контейнер */}
-        <div className="max-w-[200px] flex-shrink-0">
+        {/* Изображение */}
+        <div className="w-full md:w-48 flex-shrink-0">
           <Image
             src={work.imageUrl}
             alt={work.title}
-            width={400}  // Увеличено для лучшего качества на retina-дисплеях
-            height={400} // Увеличено для лучшего качества на retina-дисплеях
-            className="w-full h-auto rounded-md" // w-full и h-auto для сохранения пропорций
+            width={400}
+            height={400}
+            className="w-full h-auto object-cover rounded-md border-2 border-gray-600"
             priority
           />
         </div>
 
-        <div className="flex items-center justify-center gap-4">
-          <Link
-            href={work.linkUrl}
-            className="text-blue-500 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View project
-          </Link>
-          <button
-            onClick={() => deleteWork.mutate(work.id)}
-            className="text-red-500 text-2xl cursor-pointer disabled:opacity-50"
-            disabled={deleteWork.isPending}
-          >
-            <MdDelete />
-          </button>
-          <button
-            onClick={() => setIsEditing(!isEditing)} // Переключаем режим редактирования
-            className="text-green-500 text-2xl cursor-pointer"
-          >
-            <FaEdit />
-          </button>
+        {/* Контейнер для текста и кнопок */}
+        <div className="flex flex-col md:flex-row justify-between w-full gap-4">
+          
+          {/* Блок с текстом */}
+          <div className="flex flex-col">
+            <h3 className="text-xl font-bold text-amber-50">{work.title}</h3>
+            <Link
+              href={work.linkUrl}
+              className="text-blue-400 hover:underline break-all"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {work.linkUrl}
+            </Link>
+          </div>
+
+          {/* Кнопки управления */}
+          <div className="flex items-start gap-4 self-end md:self-start flex-shrink-0">
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-700 hover:bg-green-700 rounded-md transition-colors duration-200"
+            >
+              <FaEdit />
+              <span>{isEditing ? 'Закрыть' : 'Изменить'}</span>
+            </button>
+            <button
+              onClick={() => deleteWork.mutate(work.id)}
+              className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-700 hover:bg-red-700 rounded-md transition-colors duration-200"
+              disabled={deleteWork.isPending}
+            >
+              <MdDelete />
+              <span>{deleteWork.isPending ? 'Удаление...' : 'Удалить'}</span>
+            </button>
+          </div>
         </div>
       </div>
-      {/* Условный рендеринг формы обновления */}
+
+      {/* Форма обновления */}
       {isEditing && <UpdateForm work={work} onClose={() => setIsEditing(false)} />}
     </div>
   );

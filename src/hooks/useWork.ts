@@ -7,7 +7,8 @@ import {
   updateWork as updateWorkApi,
 } from "@/shared/api/works";
 import { getWorksClient } from "@/shared/api/client/getWorks";
-import { logout } from "@/shared/lib/actions"; // Импортируем logout
+import { logout } from "@/shared/lib/actions";
+import { useRouter } from "next/navigation";
 
 // --- QUERIES (ЗАПРОСЫ ДАННЫХ) ---
 
@@ -22,6 +23,7 @@ export const useWorks = () => {
 
 export const useCreateNewWork = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: createNewWorkApi,
@@ -32,6 +34,7 @@ export const useCreateNewWork = () => {
       }
       toast.success("Новая работа успешно создана!");
       queryClient.invalidateQueries({ queryKey: ["works"] });
+      router.refresh();
     },
     onError: (error) => {
       toast.error(`Ошибка: ${error.message}`);
@@ -41,6 +44,7 @@ export const useCreateNewWork = () => {
 
 export const useUpdateWork = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: FormData }) =>
@@ -52,6 +56,7 @@ export const useUpdateWork = () => {
       }
       toast.success("Работа успешно обновлена!");
       queryClient.invalidateQueries({ queryKey: ["works"] });
+      router.refresh();
     },
     onError: (error) => {
       toast.error(`Ошибка: ${error.message}`);
@@ -61,6 +66,7 @@ export const useUpdateWork = () => {
 
 export const useDeleteWork = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: deleteWorkApi,
@@ -71,6 +77,7 @@ export const useDeleteWork = () => {
       }
       toast.success("Работа успешно удалена!");
       queryClient.invalidateQueries({ queryKey: ["works"] });
+      router.refresh();
     },
     onError: (error) => {
       toast.error(`Ошибка: ${error.message}`);
@@ -80,6 +87,7 @@ export const useDeleteWork = () => {
 
 export const useRunSeed = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: runDbSeedApi,
@@ -91,6 +99,7 @@ export const useRunSeed = () => {
       toast.success("База данных сброшена! Вы будете разлогинены.");
       
       queryClient.invalidateQueries({ queryKey: ["works"] });
+      router.refresh();
 
       // Добавляем небольшую задержку, чтобы пользователь успел прочитать тост
       setTimeout(() => {
