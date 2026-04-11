@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      new URL("https://sqknuzynvougbvrw.public.blob.vercel-storage.com/**"),
+      new URL("https://s3.nikulshin-dev.ru/**"),
     ],
   },
 };
