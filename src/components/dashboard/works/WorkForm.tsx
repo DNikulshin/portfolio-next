@@ -3,10 +3,20 @@
 import { useState } from "react";
 import { Work } from "@prisma/client";
 import { useCreateNewWork, useUpdateWork } from "@/hooks/useWork";
+import { toast } from "sonner";
 
 interface Props {
   work?: Work;
   onClose: () => void;
+}
+
+function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 export function WorkForm({ work, onClose }: Props) {
@@ -16,28 +26,50 @@ export function WorkForm({ work, onClose }: Props) {
 
   const [title, setTitle] = useState(work?.title ?? "");
   const [linkUrl, setLinkUrl] = useState(work?.linkUrl ?? "");
-  const [imageUrl, setImageUrl] = useState(work?.imageUrl ?? "");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const isPending = createWork.isPending || updateWork.isPending || uploading;
 
+  function validate(): boolean {
+    if (!title.trim()) {
+      toast.error("Введите название проекта");
+      return false;
+    }
+    if (!linkUrl.trim() || !isValidUrl(linkUrl)) {
+      toast.error("Введите корректный URL (https://...)");
+      return false;
+    }
+    if (!isEdit && !file) {
+      toast.error("Выберите изображение");
+      return false;
+    }
+    return true;
+  }
+
   async function uploadImage(): Promise<string | null> {
     if (!file) return null;
     setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    setUploading(false);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.url as string;
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) {
+        toast.error("Ошибка загрузки изображения");
+        return null;
+      }
+      const data = await res.json();
+      return data.url as string;
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!validate()) return;
 
-    let finalImageUrl = imageUrl;
+    let finalImageUrl = work?.imageUrl ?? "";
     if (file) {
       const uploaded = await uploadImage();
       if (!uploaded) return;
@@ -45,8 +77,8 @@ export function WorkForm({ work, onClose }: Props) {
     }
 
     const fd = new FormData();
-    fd.append("title", title);
-    fd.append("linkUrl", linkUrl);
+    fd.append("title", title.trim());
+    fd.append("linkUrl", linkUrl.trim());
     fd.append("imageUrl", finalImageUrl);
 
     if (isEdit) {
@@ -65,7 +97,6 @@ export function WorkForm({ work, onClose }: Props) {
       <div className="space-y-1">
         <label className="text-sm text-muted-foreground">Название</label>
         <input
-          required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
@@ -76,12 +107,14 @@ export function WorkForm({ work, onClose }: Props) {
       <div className="space-y-1">
         <label className="text-sm text-muted-foreground">Ссылка</label>
         <input
-          required
           value={linkUrl}
           onChange={(e) => setLinkUrl(e.target.value)}
           className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           placeholder="https://..."
         />
+        {linkUrl && !isValidUrl(linkUrl) && (
+          <p className="text-xs text-red-500">Некорректный URL</p>
+        )}
       </div>
 
       <div className="space-y-1">

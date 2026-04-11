@@ -7,13 +7,14 @@ services:
       - HOSTNAME=0.0.0.0
       - PORT=3000
       - YM_COUNTER_ID=${YM_COUNTER_ID}
-      # NextAuth
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - AUTH_GITHUB_ID=${AUTH_GITHUB_ID}
+      - AUTH_GITHUB_SECRET=${AUTH_GITHUB_SECRET}
       - ALLOWED_GITHUB_USERNAME=${ALLOWED_GITHUB_USERNAME}
-      # MinIO
+      - AUTH_TRUST_HOST=true
       - MINIO_ENDPOINT=${MINIO_ENDPOINT}
       - MINIO_PORT=${MINIO_PORT}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
@@ -22,6 +23,7 @@ services:
       - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL}
     depends_on:
       - db
+      - minio
     networks:
       - proxy
       - internal
@@ -38,11 +40,26 @@ services:
     networks:
       - internal
 
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+    networks:
+      - proxy
+      - internal
+
 volumes:
   db_data:
+  minio_data:
 
 networks:
   proxy:
     external: true
+    name: home-codespaces_proxy
   internal:
     driver: bridge
