@@ -1,0 +1,65 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  createNewWork as createNewWorkApi,
+  deleteWork as deleteWorkApi,
+  updateWork as updateWorkApi,
+} from "@/shared/api/works";
+import { getWorksClient } from "@/shared/api/client/getWorks";
+import { useRouter } from "next/navigation";
+
+export const useWorks = () => {
+  return useQuery({
+    queryKey: ["works"],
+    queryFn: getWorksClient,
+  });
+};
+
+export const useCreateNewWork = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: createNewWorkApi,
+    onSuccess: (data) => {
+      if (data?.error) { toast.error(data.error); return; }
+      toast.success("Новая работа успешно создана!");
+      queryClient.invalidateQueries({ queryKey: ["works"] });
+      router.refresh();
+    },
+    onError: (error) => toast.error(`Ошибка: ${error.message}`),
+  });
+};
+
+export const useUpdateWork = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: FormData }) =>
+      updateWorkApi(id, data),
+    onSuccess: (data) => {
+      if (data?.error) { toast.error(data.error); return; }
+      toast.success("Работа успешно обновлена!");
+      queryClient.invalidateQueries({ queryKey: ["works"] });
+      router.refresh();
+    },
+    onError: (error) => toast.error(`Ошибка: ${error.message}`),
+  });
+};
+
+export const useDeleteWork = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: deleteWorkApi,
+    onSuccess: (data) => {
+      if (data?.error) { toast.error(data.error); return; }
+      toast.success("Работа успешно удалена!");
+      queryClient.invalidateQueries({ queryKey: ["works"] });
+      router.refresh();
+    },
+    onError: (error) => toast.error(`Ошибка: ${error.message}`),
+  });
+};

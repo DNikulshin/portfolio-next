@@ -1,0 +1,48 @@
+services:
+  portfolio:
+    build: .
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@db:5432/portfolio
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+      - YM_COUNTER_ID=${YM_COUNTER_ID}
+      # NextAuth
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - ALLOWED_GITHUB_USERNAME=${ALLOWED_GITHUB_USERNAME}
+      # MinIO
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL}
+    depends_on:
+      - db
+    networks:
+      - proxy
+      - internal
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=portfolio
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+volumes:
+  db_data:
+
+networks:
+  proxy:
+    external: true
+  internal:
+    driver: bridge

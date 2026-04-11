@@ -1,0 +1,17 @@
+name: Keep Alive Render
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render App
+        run: |
+          echo "Pinging at $(date)"
+          # -sL: тихо + редиректы
+          # -f: падать с ошибкой, если статус >= 400
+          curl -sLf https://nikulshin-dev.ru
+          curl -sLf https://nikulshin-dev.ru
