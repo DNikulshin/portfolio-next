@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# Dependencies — не нужны, пересобираются в образе
+node_modules
+
+# Next.js build output (локальный)
+.next
+
+# Env файлы — секреты не должны попадать в образ
+.env
+.env.*
+!.env.example
+
+# Dev конфиги
+.claude
+*.md
+!README.md
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Тесты и Coverage
+coverage
+__tests__
+*.test.ts
+*.spec.ts
