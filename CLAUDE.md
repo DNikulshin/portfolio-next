@@ -7,7 +7,7 @@
 - **Продакшн:** https://nikulshin-dev.ru
 - **Репозиторий:** https://github.com/DNikulshin/portfolio-next (приватный)
 - **Сервер:** Ubuntu 24.04, VPS `72.56.233.84`, Docker + Caddy
-- **Локальная разработка:** `/home/coder/projects/portfolio/`
+- **Локальная разработка:** `localhost:3333`
 
 ---
 
@@ -23,6 +23,7 @@
 | File Storage | MinIO (self-hosted S3) |
 | State / Data | TanStack Query v5 |
 | Forms | React Hook Form + Zod |
+| Animations | Framer Motion 12 |
 | Container | Docker + docker compose |
 | Reverse proxy | Caddy (авто SSL) |
 
@@ -56,13 +57,12 @@
 │   ├── schema.prisma                    # Модели: Work, Project, Task
 │   ├── seed.ts                          # Начальные данные
 │   └── migrations/
-│       ├── 20250609163623_init/         # Начальная миграция
-│       └── 20250411000000_refactor_add_projects_tasks/  # Project + Task
 └── src/
     ├── proxy.ts                         # Защита /dashboard/* (Next.js 16)
     ├── app/
-    │   ├── page.tsx                     # Портфолио — НЕ ТРОГАТЬ
+    │   ├── page.tsx                     # Портфолио — сборка секций
     │   ├── layout.tsx                   # Root layout (dark mode, QueryProvider)
+    │   ├── globals.css                  # OKLCH цвета, --hero-glow, --card-glow
     │   ├── dashboard/
     │   │   ├── layout.tsx               # Dashboard layout с Sidebar
     │   │   ├── page.tsx                 # Обзор (Server Component, статистика из БД)
@@ -80,6 +80,23 @@
     │       ├── upload/route.ts          # POST → MinIO
     │       └── health/route.ts
     ├── components/
+    │   ├── Header.tsx                   # Sticky nav + мобильный гамбургер (Framer Motion)
+    │   ├── Footer.tsx                   # Footer с соцсетями
+    │   ├── AnimatedSection.tsx          # Scroll-triggered fade-in (Framer Motion)
+    │   ├── Loader.tsx                   # Спиннер загрузки
+    │   ├── hero/
+    │   │   └── HeroSection.tsx          # Hero: аватар, tagline, анимации (client)
+    │   ├── about/
+    │   │   └── AboutSection.tsx         # Bio + stat pills (server)
+    │   ├── skills/
+    │   │   ├── SkillsSection.tsx        # 4 категории: Frontend/Backend/Mobile/Infra (server)
+    │   │   └── SkillGrid.tsx            # Иконки с hover-анимацией (client)
+    │   ├── projects/
+    │   │   ├── FeaturedProjectsSection.tsx  # Async server: GitHub API live data
+    │   │   ├── ProjectCard.tsx          # Карточка репозитория с tech-тегами (server)
+    │   │   └── projectsData.ts          # Статичный маппинг tech-тегов по именам репо
+    │   ├── contact/
+    │   │   └── ContactSection.tsx       # CTA с Telegram + Email (server)
     │   ├── dashboard/
     │   │   ├── Sidebar.tsx              # Навигация + выход
     │   │   ├── works/
@@ -90,7 +107,8 @@
     │   │       └── TaskCard.tsx         # Карточка задачи
     │   └── works/
     │       ├── Work.tsx                 # Публичный view (без CRUD)
-    │       └── WorkList.tsx             # Список/слайдер работ
+    │       ├── WorkList.tsx             # Список/слайдер работ (client, TanStack Query)
+    │       └── WorkSliderSkeleton.tsx   # Скелетон загрузки слайдера
     ├── hooks/
     │   └── useWork.ts                   # useWorks, useCreateNewWork, useUpdateWork, useDeleteWork
     ├── shared/
@@ -101,12 +119,29 @@
     │   └── lib/
     │       ├── prisma-client.ts         # Singleton PrismaClient
     │       ├── minio.ts                 # S3Client, uploadFile(), deleteFile()
-    │       ├── github.ts                # getGithubUser(), getGithubRepos()
+    │       ├── github.ts                # getGithubUser(), getGithubRepos(), getFeaturedRepos()
     │       └── css.ts                   # cn() утилита
     └── types/
         ├── types.ts                     # IResponseDataWork, IFormData*
         └── next-auth.d.ts               # Расширение Session (accessToken)
 ```
+
+---
+
+## Публичная страница — структура секций
+
+```
+Header (sticky, мобильный гамбургер)
+├── HeroSection        — full-viewport, Framer Motion анимации при загрузке
+├── AnimatedSection #about    → AboutSection (bio + stat pills)
+├── AnimatedSection #skills   → SkillsSection (22 иконки, 4 категории)
+├── AnimatedSection #projects → FeaturedProjectsSection (live GitHub API)
+├── AnimatedSection #contact  → ContactSection (CTA)
+Footer
+```
+
+**Works секция убрана с публичной страницы** — текущие работы в БД были учебными проектами.
+Когда будут скриншоты реальных проектов — добавить Works обратно через дашборд.
 
 ---
 
@@ -153,13 +188,29 @@ enum Priority      { LOW | MEDIUM | HIGH }
 
 ---
 
+## GitHub API — важные детали
+
+```typescript
+// src/shared/lib/github.ts
+getGithubUser(accessToken)    // dashboard/github — требует OAuth токен сессии
+getGithubRepos(accessToken)   // dashboard/github — требует OAuth токен сессии
+getFeaturedRepos(token?)      // публичная страница — токен опционален (PAT)
+```
+
+- `getFeaturedRepos` — фетчит 6 конкретных репо по имени, `revalidate: 3600`
+- Без `GITHUB_TOKEN`: публичный API, лимит 60 req/час на IP (хватает из-за кэша)
+- С `GITHUB_TOKEN`: 5000 req/час — рекомендуется для продакшна
+- Список репо: `corporate-transport`, `crm-support`, `nextjs15-crm`, `AnyWhereDesk`, `pc-remote`, `chrome-ext-todo`
+- Tech-теги для карточек: `src/components/projects/projectsData.ts`
+
+---
+
 ## Auth — важные детали
 
 - **NextAuth v5** с GitHub OAuth
-- **Next.js 16**: вместо `middleware.ts` используется **`src/proxy.ts`** — это обязательное требование фреймворка
-- Доступ к дашборду разрешён только пользователю с логином `DNikulshin` (проверка в `signIn` callback)
+- **Next.js 16**: вместо `middleware.ts` используется **`src/proxy.ts`**
+- Доступ к дашборду разрешён только пользователю с логином `DNikulshin`
 - GitHub `accessToken` сохраняется в JWT и доступен через `session.accessToken`
-- Тип сессии расширен в `src/types/next-auth.d.ts`
 
 ```typescript
 // auth.ts — ключевые callbacks
@@ -178,14 +229,11 @@ session({ session, token })   → передача accessToken клиенту
 - Загрузка через `POST /api/upload` — только для авторизованных
 - При удалении Work → автоматически удаляется файл из MinIO (`deleteFile()`)
 - При замене изображения → старый файл удаляется, загружается новый
-- URL формат: `https://s3.nikulshin-dev.ru/portfolio/{timestamp}-{filename}`
 
 ```typescript
 // src/shared/lib/minio.ts
-uploadFile(file: File): Promise<string>   // → возвращает публичный URL
-deleteFile(url: string): Promise<void>    // → извлекает key из URL и удаляет
-getPublicUrl(key: string): string
-getKeyFromUrl(url: string): string
+uploadFile(file: File): Promise<string>
+deleteFile(url: string): Promise<void>
 ```
 
 ---
@@ -208,21 +256,22 @@ MINIO_ACCESS_KEY=<MINIO_ROOT_USER>
 MINIO_SECRET_KEY=<MINIO_ROOT_PASSWORD>
 MINIO_BUCKET=portfolio
 MINIO_PUBLIC_URL=https://s3.nikulshin-dev.ru
+
+# Опционально — повышает лимит GitHub API с 60 до 5000 req/час
+GITHUB_TOKEN=<GitHub PAT, без scopes>
 ```
 
 ---
 
-## Caddy конфигурация (сервер)
+## Caddy конфигурация
 
 ```caddyfile
 nikulshin-dev.ru {
     reverse_proxy portfolio:3000
 }
-
 s3.nikulshin-dev.ru {
     reverse_proxy minio:9000
 }
-
 minio.nikulshin-dev.ru {
     reverse_proxy minio:9001
 }
@@ -233,15 +282,11 @@ minio.nikulshin-dev.ru {
 ## Деплой
 
 ```bash
-# На сервере — полный цикл
 cd /opt/portfolio
 git pull origin main
 docker compose build --no-cache
 docker compose up -d
-docker compose exec portfolio npx prisma migrate deploy  # ⚠️ обязательно после изменений схемы
-
-# Логи
-docker compose logs portfolio -f
+docker compose exec portfolio npx prisma migrate deploy
 ```
 
 ---
@@ -249,37 +294,32 @@ docker compose logs portfolio -f
 ## Команды разработки
 
 ```bash
-# Запуск (порт 3333)
-npm run dev
-
-# Prisma
-npx prisma studio          # GUI для БД
-npx prisma migrate dev     # создать новую миграцию локально
-npx prisma generate        # обновить клиент после изменений схемы
-npx prisma migrate deploy  # применить миграции (продакшн)
+npm run dev          # порт 3333
+npx prisma studio    # GUI для БД
+npx prisma migrate dev
+npx prisma generate
 ```
 
 ---
 
 ## Правила и соглашения
 
-1. **`src/app/page.tsx`** — главная портфолио, не трогать, только добавлять секции
-2. **Dashboard страницы** — Server Components там где можно (github, overview), Client Components для интерактива
-3. **API routes в dashboard** — все мутации защищены `auth()` из NextAuth
-4. **`deleteFile()` вызывается с `.catch(() => {})`** — падение MinIO не должно ломать основную логику
-5. **`next.config.ts`** — `remotePatterns` включает `s3.nikulshin-dev.ru` для `next/image`
-6. **Сессия NextAuth** содержит `accessToken` GitHub — используется для GitHub API запросов
+1. **`page.tsx`** — собирает секции из компонентов, минимум логики
+2. **Server Components по умолчанию** — `"use client"` только там, где нужна интерактивность
+3. **`AnimatedSection`** оборачивает все секции кроме Hero (у Hero свои Framer Motion анимации)
+4. **`deleteFile()` вызывается с `.catch(() => {})`** — падение MinIO не ломает основную логику
+5. **`cn()` утилита** — `import { cn } from "@/shared/lib/css"`
+6. **Аватар** — `import Avatar from "@/images/avatar3.webp"` (alias в tsconfig → `public/images/`)
+7. **Works** убран с публичной страницы, дашборд CRUD сохранён — вернуть когда будут реальные скриншоты
 
 ---
 
 ## Идеи для следующих фич
 
-- **Блог** — `/blog` с MDX постами (хранение в репо или в БД)
+- **Works секция** — добавить скриншоты реальных проектов (crm-support, corporate-transport, pc-remote) и вернуть на публичную страницу
+- **Блог** — `/blog` с MDX постами
 - **CV / Resume** — страница с PDF экспортом
-- **Теги для Works** — фильтрация по технологиям на портфолио
-- **Дедлайны для Task** — поле `dueDate`, уведомления
-- **Drag & Drop Kanban** — `@dnd-kit/core` для перетаскивания задач между колонками
-- **Dashboard аналитика** — Яндекс.Метрика статистика посещений прямо в дашборде
-- **Telegram уведомления** — бот присылает алерты (новый посетитель, ошибка деплоя)
-- **Заметки** — простой markdown редактор в дашборде
-- **Webhook CI/CD** — автодеплой при push в main (сейчас ручной)
+- **Drag & Drop Kanban** — `@dnd-kit/core`
+- **Telegram уведомления** — бот на алерты
+- **Дедлайны для Task** — поле `dueDate`
+- **Webhook CI/CD** — автодеплой при push в main
