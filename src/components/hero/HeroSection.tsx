@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import Avatar from '@/images/avatar3.webp'
@@ -13,22 +13,22 @@ const socialLinks = [
   { href: 'mailto:d.nikulshin.dev@gmail.com', icon: MdAlternateEmail, label: 'Email' },
 ]
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
 }
 
-const slideLeft = {
+const slideLeft: Variants = {
   hidden: { opacity: 0, x: -30 },
   visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 }
 
-const scaleIn = {
+const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.85 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: 'easeOut' } },
 }
 
-const iconVariant = {
+const iconVariant: Variants = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 }
