@@ -24,24 +24,28 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Portfolio | Nikulshin D.",
-  description: "Developer page - Nikulshin Dmitry",
+  title: "Dmitriy Nikulshin | Fullstack Developer",
+  description: "Fullstack-разработчик: React, TypeScript, Node.js, Docker. От концепции до кода.",
   generator: "Next.js",
-  // Условно подключаем манифест только для продакшен-сборки
   manifest: process.env.NODE_ENV === 'production' ? '/manifest.json' : undefined,
   keywords: [
-    "Portfolio",
-    "Developer page",
+    "Fullstack Developer",
+    "React",
+    "TypeScript",
+    "Node.js",
+    "NestJS",
+    "Docker",
     "Nikulshin Dmitriy",
-    "Портфолио веб разработчика",
     "Никульшин Дмитрий",
+    "Портфолио разработчика",
   ],
-  authors: [
-    {
-      name: "Nikulshin D.",
-      url: "https://github.com/DNikulshin",
-    },
-  ],
+  authors: [{ name: "Dmitriy Nikulshin", url: "https://github.com/DNikulshin" }],
+  openGraph: {
+    title: "Dmitriy Nikulshin | Fullstack Developer",
+    description: "От концепции до кода: React, TypeScript, Node.js, Docker.",
+    url: "https://nikulshin-dev.ru",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -50,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ru" className="scroll-smooth">
       <head>
         <link rel="icon" href="/icons/icon-192x192.png" />
       </head>

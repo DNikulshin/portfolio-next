@@ -79,6 +79,8 @@
 }
 
 .dark {
+  --hero-glow: radial-gradient(ellipse at top, oklch(0.2 0.05 260) 0%, transparent 60%);
+  --card-glow: 0 0 20px oklch(0.65 0.15 260 / 0.15);
   --background: oklch(0.09 0.01 235);
   --foreground: oklch(0.95 0.01 235);
   --card: oklch(0.15 0.02 235);
@@ -119,6 +121,10 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary rounded-sm;
   }
 }
 
