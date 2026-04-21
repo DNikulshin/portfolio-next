@@ -38,5 +38,5 @@ jobs:
         run: |
           curl -f -X POST https://webhook.nikulshin-dev.online/hooks/deploy-portfolio \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}" \
+            -H "Authorization: Bearer ${{ secrets.WEBHOOK_SECRET_PORTFOLIO }}" \
             -d '{"ref":"refs/heads/main"}'
