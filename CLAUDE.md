@@ -279,15 +279,92 @@ minio.nikulshin-dev.ru {
 
 ---
 
-## Деплой
+## Деплой — автоматический через GitHub Actions + Webhook
+
+### Архитектура пайплайна
+
+```
+git push origin main
+    ↓
+GitHub Actions (.github/workflows/deploy.yml)
+    ↓ 1. docker build → push в ghcr.io/dnikulshin/portfolio-next:latest
+    ↓ 2. curl POST https://webhook.nikulshin-dev.online/hooks/deploy-portfolio
+    ↓
+VPS: webhook-контейнер получает trigger
+    ↓
+Запускает /scripts/deploy-portfolio.sh
+    ↓ docker pull ghcr.io/dnikulshin/portfolio-next:latest
+    ↓ cd /opt/home-codespaces/portfolio-next
+    ↓ docker compose up -d portfolio
+    ↓
+Новая версия на https://nikulshin-dev.ru (~30 сек)
+```
+
+### Пути на сервере
+
+- **Корневой compose:** `/opt/home-codespaces/docker-compose.yml` (caddy, webhook, minio, code-server и т.д.)
+- **Портфолио:** `/opt/home-codespaces/portfolio-next/` — `docker-compose.yml` ссылается на `image: ghcr.io/dnikulshin/portfolio-next:latest` (НЕ `build:`)
+- **Webhook-скрипты:** `/opt/home-codespaces/webhook/` — `hooks.json`, `deploy-portfolio.sh`, `deploy.sh`, `deploy-scan-agent.sh`
+
+### Webhook-контейнер
+
+- Alpine-based, запускается из корневого `docker-compose.yml`
+- Устанавливает пакеты: `webhook git gettext docker-cli docker-cli-compose` (важно — `docker-cli` и `docker-cli-compose` оба, чтобы работала команда `docker compose` внутри контейнера)
+- Управляет хостовым Docker через смонтированный `/var/run/docker.sock`
+- `/opt/home-codespaces` смонтирован в контейнер — скрипты видят реальные compose-файлы
+- **Не использует `nsenter`** — все Docker-команды идут напрямую через сокет
+- Volumes для webhook:
+  ```yaml
+  - ./webhook/hooks.json:/etc/webhook/hooks.json:ro
+  - ./webhook/deploy.sh:/scripts/deploy.sh
+  - ./webhook/deploy-portfolio.sh:/scripts/deploy-portfolio.sh
+  - /var/run/docker.sock:/var/run/docker.sock
+  - /opt/home-codespaces:/opt/home-codespaces
+  ```
+
+### deploy-portfolio.sh — рабочая версия
+
+```sh
+#!/bin/sh
+set -e
+echo "=== Portfolio Deploy started $(date) ==="
+docker pull ghcr.io/dnikulshin/portfolio-next:latest
+cd /opt/home-codespaces/portfolio-next
+docker compose up -d portfolio
+echo "=== Portfolio Deploy finished $(date) ==="
+```
+
+### GHCR (GitHub Container Registry)
+
+- Образ: `ghcr.io/dnikulshin/portfolio-next:latest`
+- **Visibility: public** — не требует авторизации для `docker pull`
+- Настройка: https://github.com/users/DNikulshin/packages/container/portfolio-next/settings
+
+### Ручной деплой (если webhook не сработал)
 
 ```bash
-cd /opt/portfolio
-git pull origin main
-docker compose build --no-cache
-docker compose up -d
+ssh root@72.56.233.84
+cd /opt/home-codespaces/portfolio-next
+docker compose pull
+docker compose up -d portfolio
+docker compose exec portfolio npx prisma migrate deploy  # только если меняли схему
+```
+
+### Миграции БД
+
+Prisma-миграции **НЕ применяются автоматически** при деплое. После push схемы — вручную:
+
+```bash
 docker compose exec portfolio npx prisma migrate deploy
 ```
+
+### Dockerfile — важно
+
+- Multi-stage build: `deps → builder → runner`
+- **Runner не копирует `node_modules`** целиком — Next.js `standalone` mode включает минимальные зависимости в `.next/standalone/node_modules`
+- Копируется только `node_modules/.prisma` (нативные бинарники под alpine)
+- `.dockerignore` исключает `node_modules`, `.git`, `.env*`, `.next` из build context
+- Итоговый образ ~80-120 МБ (было ~350 МБ до оптимизации)
 
 ---
 

@@ -169,14 +169,80 @@ curl -I https://your-domain.com
 
 ---
 
-## Обновление
+## CI/CD — автодеплой (текущая инфраструктура)
+
+После `git push origin main` деплой идёт автоматически:
+
+```
+GitHub Actions → build → GHCR → webhook → VPS → docker pull → restart
+```
+
+### Структура на VPS
+
+```
+/opt/home-codespaces/
+├── docker-compose.yml              # корневой: caddy, webhook, minio, codeserver
+├── webhook/
+│   ├── hooks.json                  # конфиг webhook-сервиса
+│   ├── deploy-portfolio.sh         # скрипт деплоя портфолио
+│   └── deploy.sh                   # общий скрипт
+└── portfolio-next/
+    ├── docker-compose.yml          # image: ghcr.io/dnikulshin/portfolio-next:latest
+    └── .env                        # переменные окружения
+```
+
+### GitHub Actions (`.github/workflows/deploy.yml`)
+
+- Собирает Docker-образ и пушит в `ghcr.io/dnikulshin/portfolio-next:latest`
+- Вызывает webhook: `POST https://webhook.nikulshin-dev.online/hooks/deploy-portfolio`
+
+### Webhook-контейнер (Alpine)
+
+Запускается из корневого `docker-compose.yml`, устанавливает `docker-cli` + `docker-cli-compose`, управляет хостовым Docker через смонтированный сокет `/var/run/docker.sock` без `nsenter`.
+
+### deploy-portfolio.sh
+
+```sh
+#!/bin/sh
+set -e
+docker pull ghcr.io/dnikulshin/portfolio-next:latest
+cd /opt/home-codespaces/portfolio-next
+docker compose up -d portfolio
+```
+
+### GHCR-пакет
+
+`ghcr.io/dnikulshin/portfolio-next` — **public** (не требует авторизации для pull).
+Настройка: https://github.com/users/DNikulshin/packages/container/portfolio-next/settings
+
+### Ручной деплой (fallback)
 
 ```bash
-cd /opt/portfolio
-git pull origin main
-docker compose build --no-cache
-docker compose up -d
-docker compose exec -T portfolio npx prisma migrate deploy
+ssh root@<vps>
+cd /opt/home-codespaces/portfolio-next
+docker compose pull
+docker compose up -d portfolio
+```
+
+### Миграции БД
+
+Prisma-миграции **не применяются автоматически**. После изменения схемы — вручную:
+
+```bash
+docker compose exec portfolio npx prisma migrate deploy
+```
+
+### Проверка пайплайна
+
+```bash
+# На сервере — запустить скрипт вручную
+docker compose exec webhook sh /scripts/deploy-portfolio.sh
+
+# Логи webhook-контейнера
+docker compose logs webhook -f
+
+# Логи портфолио
+cd portfolio-next && docker compose logs portfolio -f
 ```
 
 ---
