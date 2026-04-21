@@ -391,6 +391,59 @@ npx prisma generate
 
 ---
 
+## Ключевые решения (redesign 2026-04-21)
+
+Контекст принятых решений по редизайну — почему выбрано именно так, чтобы не откатывать без обсуждения.
+
+### Визуальный стиль
+- **Terminal / Code** — выбран вместо Glassmorphism. Техническая эстетика: моно-шрифт для акцентов, секции помечены `// NN SECTION`, neon-glow эффекты, dark theme
+- **OKLCH-палитра не трогалась** — уже была хорошо настроена
+
+### Works секция
+- **Убрана с публичной страницы** — в БД лежали учебные проекты, неподходящие для витрины
+- **Dashboard CRUD сохранён** — вернуть на публичную страницу когда появятся скриншоты реальных клиентских работ (crm-support, corporate-transport, pc-remote)
+
+### Featured Projects — live GitHub API
+- Выбран live-вариант (отклонено: статичные карточки, GraphQL pinned-репо)
+- `getFeaturedRepos(token?)` в `src/shared/lib/github.ts` — 6 репо через REST API, `revalidate: 3600`
+- Tech-теги дополняются статически из `src/components/projects/projectsData.ts` (API `topics` часто пустые)
+
+### Контакты
+- Telegram: **`@nikulshin_dev`** (единый с GitHub bio, заменили старый `@dmtr_nik`)
+- Email: `d.nikulshin.dev@gmail.com`
+
+### Header
+- Logo: `</>` + `DNikulshin` (как на GitHub; отклонены варианты `nikulshin.dev`, инициалы, пусто)
+- Sticky с `backdrop-blur` при скролле > 10px
+- Мобильный гамбургер через Framer Motion `AnimatePresence` — **absolute позиционирование**, не толкает контент
+
+### Hero
+- Высота `min-h-[80vh]` (не 100vh — на широких экранах было слишком много пустого воздуха)
+- Layout: `justify-between` + `flex-1` на тексте + `max-w-xl` — равномерное распределение
+- Аватар: `w-72 h-72` на десктопе, `object-cover` с `objectPosition: '50% 20%'` (лицо не обрезается)
+- Tagline: **"От концепции до кода"** из GitHub bio в `text-primary`
+- Subtitle: "Строю продукты полного цикла: **API → UI → Deploy**"
+- Tech-стек: flex-wrap маленьких badges (не строка через `·` — ломала мобилку)
+
+### Skills
+- 4 категории: Frontend / Backend / Mobile / Infra (22 иконки)
+- Компактная сетка `grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9`
+- Иконки `text-4xl`, подписи `text-[10px]`
+
+### Accessibility
+- `aria-label` на всех icon-only ссылках, `aria-expanded` на гамбургере
+- `focus-visible` стили в `globals.css`
+- Семантика h1 (Hero) → h2 (секции)
+- `lang="ru"` + `scroll-smooth` на `<html>`
+
+### Docker / образ
+- Multi-stage build, **runner не копирует `node_modules`** — Next.js `standalone` уже содержит минимальные зависимости
+- Копируется только `.prisma` (нативные бинарники под alpine)
+- `.dockerignore` исключает `node_modules`, `.git`, `.env*`
+- Итог: ~80-120 МБ (было ~350 МБ)
+
+---
+
 ## Идеи для следующих фич
 
 - **Works секция** — добавить скриншоты реальных проектов (crm-support, corporate-transport, pc-remote) и вернуть на публичную страницу
