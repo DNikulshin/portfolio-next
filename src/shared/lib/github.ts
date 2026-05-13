@@ -44,7 +44,7 @@ const FEATURED_REPO_NAMES = [
   "corporate-transport",
   "support-ticketing-system",
   "pc-remote",
-  " AnyWhereDesk",
+  "AnyWhereDesk",
   "chrome-ext-todo",
 ];
 
