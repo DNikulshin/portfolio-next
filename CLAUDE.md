@@ -442,6 +442,12 @@ npx prisma generate
 - `.dockerignore` исключает `node_modules`, `.git`, `.env*`
 - Итог: ~80-120 МБ (было ~350 МБ)
 
+### Webhook CI/CD (заработал end-to-end 2026-05-14)
+- `Authorization: Bearer <secret>` в GitHub Action + проверка `payload.ref == refs/heads/main` в `hooks.json`
+- В webhook-контейнер (alpine) ставится `docker-cli docker-cli-compose` через apk — `deploy-portfolio.sh` запускает `docker compose` напрямую через смонтированный `/var/run/docker.sock` (без `nsenter`, без `/usr/bin/docker` с хоста)
+- `deploy-portfolio.sh` — только `docker pull` + `docker compose up -d` (без `git pull`, без `build` — образ берётся из ghcr)
+- Цикл `git push → live`: ~3-4 минуты (build в Actions — основное время)
+
 ---
 
 ## Идеи для следующих фич
@@ -452,4 +458,3 @@ npx prisma generate
 - **Drag & Drop Kanban** — `@dnd-kit/core`
 - **Telegram уведомления** — бот на алерты
 - **Дедлайны для Task** — поле `dueDate`
-- **Webhook CI/CD** — автодеплой при push в main
