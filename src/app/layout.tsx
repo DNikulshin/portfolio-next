@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import type { Viewport } from "next";
-import { GeistSans } from 'geist/font/sans'; // Импорт встроенного шрифта
-import { GeistMono } from 'geist/font/mono'; // Импорт встроенного моно-шрифта
+
 import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { YandexMetrika } from "@/components/YandexMetrika";
+
+
+const geistSans = { variable: "--font-geist-sans" };
+const geistMono = { variable: "--font-geist-mono" };
 
 // Подключение встроенных локальных шрифтов Geist
 // const geistSans = localFont({
@@ -63,7 +66,7 @@ export default function RootLayout({
         <link rel="icon" href="/icons/icon-192x192.png" />
       </head>
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} antialiased dark`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased dark`}
       >
         <QueryProvider>{children}</QueryProvider>
         <YandexMetrika />
