@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
 import type { Viewport } from "next";
-import localFont from "next/font/local";
+import { GeistSans } from 'geist/font/sans'; // Импорт встроенного шрифта
+import { GeistMono } from 'geist/font/mono'; // Импорт встроенного моно-шрифта
 import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { YandexMetrika } from "@/components/YandexMetrika";
 
 // Подключение встроенных локальных шрифтов Geist
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff2",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
+// const geistSans = localFont({
+//   src: "./fonts/GeistVF.woff2",
+//   variable: "--font-geist-sans",
+//   weight: "100 900",
+// });
 
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff2",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff2",
+//   variable: "--font-geist-mono",
+//   weight: "100 900",
+// });
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -62,7 +63,7 @@ export default function RootLayout({
         <link rel="icon" href="/icons/icon-192x192.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
+        className={`${GeistSans.variable} ${GeistMono.variable} antialiased dark`}
       >
         <QueryProvider>{children}</QueryProvider>
         <YandexMetrika />
